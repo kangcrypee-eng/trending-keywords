@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="전 세계 실시간 인기 검색어를 한눈에 확인하세요. 미국, 캐나다, 호주, 영국 등 11개국의 트렌딩 키워드와 분석을 제공합니다.">
+    <meta name="keywords" content="실시간 검색어, 트렌드, 인기 검색어, Google Trends, 글로벌 트렌드">
+    <title>글로벌 실시간 인기 검색어 - 11개국 트렌드 분석</title>
+    
+    <!-- 파비콘 -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌍</text></svg>">
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-XXXXXXXXXX'); // 실제 Google Analytics ID로 교체하세요
+    </script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            animation: fadeIn 0.8s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 1em;
+            opacity: 0.95;
+            margin-bottom: 15px;
+        }
+
+        .last-updated {
+            font-size: 0.85em;
+            opacity: 0.85;
+            background: rgba(255,255,255,0.2);
+            padding: 6px 14px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        /* 국가 탭 네비게이션 */
+        .country-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+        }
+
+        .country-tab {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid transparent;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .country-tab:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .country-tab.active {
+            background: white;
+            color: #667eea;
+            border-color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .country-flag {
+            font-size: 1.3em;
+        }
+
+        /* 트렌드 카드 */
+        .trend-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            animation: slideUp 0.5s ease-out;
+            display: none;
+        }
+
+        .trend-card.active {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #f0f0f0;
+        }
+
+        .card-country {
+            font-size: 2em;
+            font-weight: 700;
+            color: #2d3436;
+        }
+
+        .card-flag {
+            font-size: 3em;
+            animation: wave 2s ease-in-out infinite;
+        }
+
+        @keyframes wave {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(10deg); }
+            75% { transform: rotate(-10deg); }
+        }
+
+        .keywords-list {
+            list-style: none;
+        }
+
+        .keyword-item {
+            padding: 18px;
+            margin-bottom: 14px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            border-radius: 12px;
+            border-left: 5px solid #667eea;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .keyword-item:hover {
+            background: linear-gradient(135deg, #e9ecef 0%, #f8f9fa 100%);
+            transform: translateX(10px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        }
+
+        .keyword-rank {
+            display: inline-block;
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 36px;
+            font-weight: 700;
+            margin-right: 14px;
+            font-size: 1em;
+        }
+
+        .keyword-title {
+            font-size: 1.25em;
+            font-weight: 600;
+            color: #2d3436;
+            margin-bottom: 10px;
+        }
+
+        .keyword-explanation {
+            font-size: 0.95em;
+            color: #636e72;
+            line-height: 1.7;
+            margin-left: 50px;
+            margin-top: 10px;
+        }
+
+        .news-count {
+            display: inline-block;
+            background: linear-gradient(135deg, #74b9ff 0%, #a29bfe 100%);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 14px;
+            font-size: 0.8em;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 1.8em;
+            padding: 60px;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .error {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            color: white;
+            padding: 24px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 20px 0;
+            box-shadow: 0 8px 16px rgba(255,107,107,0.3);
+        }
+
+        .reload-button {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .reload-button:hover {
+            background: #f8f9fa;
+            transform: scale(1.05);
+        }
+
+        /* 공유 버튼 */
+        .share-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .share-btn {
+            background: rgba(255,255,255,0.3);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .share-btn:hover {
+            background: rgba(255,255,255,0.5);
+            transform: translateY(-2px);
+        }
+
+        .share-btn.copied {
+            background: #4caf50;
+            animation: successPulse 0.5s ease;
+        }
+
+        @keyframes successPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            margin-top: 40px;
+            opacity: 0.8;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .country-tabs {
+                padding: 15px;
+                gap: 8px;
+            }
+
+            .country-tab {
+                padding: 10px 16px;
+                font-size: 0.9em;
+            }
+
+            .card-country {
+                font-size: 1.5em;
+            }
+
+            .card-flag {
+                font-size: 2.5em;
+            }
+
+            .keyword-title {
+                font-size: 1.1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌍 글로벌 실시간 인기 검색어</h1>
+            <p class="subtitle">전 세계 11개국의 트렌딩 키워드를 실시간으로 확인하세요</p>
+            <p class="last-updated" id="lastUpdated">데이터 로딩 중...</p>
+            
+            <!-- 공유 버튼 -->
+            <div class="share-buttons">
+                <button class="share-btn" onclick="shareTwitter()">
+                    🐦 트위터 공유
+                </button>
+                <button class="share-btn" onclick="shareFacebook()">
+                    📘 페이스북 공유
+                </button>
+                <button class="share-btn" id="copyLinkBtn" onclick="copyLink()">
+                    🔗 링크 복사
+                </button>
+            </div>
+        </header>
+
+        <!-- 국가 탭 -->
+        <div class="country-tabs" id="countryTabs" style="display: none;">
+            <!-- 동적으로 탭 생성 -->
+        </div>
+
+        <div id="loading" class="loading">
+            🔄 데이터를 불러오는 중...
+        </div>
+
+        <div id="error" style="display: none;"></div>
+
+        <!-- 트렌드 카드 컨테이너 -->
+        <div id="trendsContainer">
+            <!-- 동적으로 국가별 카드가 여기에 추가됩니다 -->
+        </div>
+
+        <footer>
+            <p>© 2024 글로벌 트렌드. 3시간마다 자동 업데이트 | 데이터 출처: Google Trends</p>
+        </footer>
+    </div>
+
+    <script>
+        // 국가 설정
+        const COUNTRIES = {
+            'US': { name: '미국', flag: '🇺🇸' },
+            'CA': { name: '캐나다', flag: '🇨🇦' },
+            'AU': { name: '호주', flag: '🇦🇺' },
+            'GB': { name: '영국', flag: '🇬🇧' },
+            'DE': { name: '독일', flag: '🇩🇪' },
+            'FR': { name: '프랑스', flag: '🇫🇷' },
+            'NO': { name: '노르웨이', flag: '🇳🇴' },
+            'SE': { name: '스웨덴', flag: '🇸🇪' },
+            'JP': { name: '일본', flag: '🇯🇵' },
+            'KR': { name: '한국', flag: '🇰🇷' },
+            'SG': { name: '싱가포르', flag: '🇸🇬' }
+        };
+
+        let trendsData = {};
+        let currentCountry = null;
+
+        // URL에서 국가 코드 추출
+        function getCountryFromURL() {
+            const path = window.location.pathname;
+            const match = path.match(/\/([a-z]{2})$/i);
+            if (match) {
+                return match[1].toUpperCase();
+            }
+            return null;
+        }
+
+        // URL 변경 (브라우저 히스토리)
+        function changeURL(countryCode) {
+            const url = `/${countryCode.toLowerCase()}`;
+            window.history.pushState({ country: countryCode }, '', url);
+        }
+
+        // 트렌드 데이터 로드
+        async function loadTrends() {
+            const loadingEl = document.getElementById('loading');
+            const errorEl = document.getElementById('error');
+            const tabsEl = document.getElementById('countryTabs');
+            const containerEl = document.getElementById('trendsContainer');
+
+            loadingEl.style.display = 'block';
+            errorEl.style.display = 'none';
+            tabsEl.style.display = 'none';
+            containerEl.innerHTML = '';
+
+            try {
+                const response = await fetch('/api/trends');
+                const result = await response.json();
+
+                if (!result.success) {
+                    throw new Error(result.error || '데이터를 불러올 수 없습니다.');
+                }
+
+                if (!result.data || result.data.length === 0) {
+                    throw new Error('아직 수집된 데이터가 없습니다. 잠시 후 다시 시도해주세요.');
+                }
+
+                // 데이터 저장
+                trendsData = {};
+                result.data.forEach(trend => {
+                    trendsData[trend.country_code] = trend;
+                });
+
+                loadingEl.style.display = 'none';
+                tabsEl.style.display = 'flex';
+
+                createTabs();
+                createCards();
+                updateLastUpdated(result.data);
+
+                // URL에서 국가 선택 또는 기본값 (미국)
+                const urlCountry = getCountryFromURL();
+                const initialCountry = (urlCountry && trendsData[urlCountry]) ? urlCountry : 'US';
+                selectCountry(initialCountry);
+
+            } catch (error) {
+                loadingEl.style.display = 'none';
+                errorEl.style.display = 'block';
+                errorEl.className = 'error';
+                errorEl.innerHTML = `
+                    ❌ ${error.message}
+                    <br><br>
+                    <button class="reload-button" onclick="loadTrends()">다시 시도</button>
+                `;
+            }
+        }
+
+        // 국가 탭 생성
+        function createTabs() {
+            const tabsEl = document.getElementById('countryTabs');
+            tabsEl.innerHTML = '';
+
+            Object.keys(COUNTRIES).forEach(code => {
+                if (!trendsData[code]) return;
+
+                const tab = document.createElement('button');
+                tab.className = 'country-tab';
+                tab.dataset.country = code;
+                tab.innerHTML = `
+                    <span class="country-flag">${COUNTRIES[code].flag}</span>
+                    <span>${COUNTRIES[code].name}</span>
+                `;
+                tab.onclick = () => selectCountry(code);
+                tabsEl.appendChild(tab);
+            });
+        }
+
+        // 트렌드 카드 생성
+        function createCards() {
+            const containerEl = document.getElementById('trendsContainer');
+            containerEl.innerHTML = '';
+
+            Object.keys(trendsData).forEach(code => {
+                const trend = trendsData[code];
+                const card = document.createElement('div');
+                card.className = 'trend-card';
+                card.dataset.country = code;
+
+                card.innerHTML = `
+                    <div class="card-header">
+                        <span class="card-country">${trend.country_name}</span>
+                        <span class="card-flag">${COUNTRIES[code].flag}</span>
+                    </div>
+                    <ul class="keywords-list">
+                        ${trend.keywords.map(kw => `
+                            <li class="keyword-item">
+                                <span class="keyword-rank">${kw.rank}</span>
+                                <div class="keyword-title">
+                                    ${escapeHtml(kw.keyword)}
+                                    <span class="news-count">📰 ${kw.news_count}</span>
+                                </div>
+                                <div class="keyword-explanation">${escapeHtml(kw.explanation)}</div>
+                            </li>
+                        `).join('')}
+                    </ul>
+                `;
+
+                containerEl.appendChild(card);
+            });
+        }
+
+        // 국가 선택
+        function selectCountry(countryCode) {
+            currentCountry = countryCode;
+
+            // URL 변경
+            changeURL(countryCode);
+
+            // 탭 활성화
+            document.querySelectorAll('.country-tab').forEach(tab => {
+                if (tab.dataset.country === countryCode) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+
+            // 카드 표시
+            document.querySelectorAll('.trend-card').forEach(card => {
+                if (card.dataset.country === countryCode) {
+                    card.classList.add('active');
+                } else {
+                    card.classList.remove('active');
+                }
+            });
+        }
+
+        // HTML 이스케이프
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 마지막 업데이트 시간
+        function updateLastUpdated(trends) {
+            if (!trends || trends.length === 0) return;
+
+            const lastUpdated = new Date(trends[0].updated_at);
+            const formatted = lastUpdated.toLocaleString('ko-KR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            document.getElementById('lastUpdated').textContent = 
+                `마지막 업데이트: ${formatted}`;
+        }
+
+        // 브라우저 뒤로가기/앞으로가기 처리
+        window.addEventListener('popstate', (event) => {
+            if (event.state && event.state.country) {
+                selectCountry(event.state.country);
+            } else {
+                const urlCountry = getCountryFromURL();
+                if (urlCountry && trendsData[urlCountry]) {
+                    selectCountry(urlCountry);
+                } else {
+                    selectCountry('US');
+                }
+            }
+        });
+
+        // 페이지 로드 시 자동 실행
+        window.addEventListener('DOMContentLoaded', loadTrends);
+
+        // 5분마다 자동 새로고침
+        setInterval(() => {
+            loadTrends().then(() => {
+                if (currentCountry) {
+                    selectCountry(currentCountry);
+                }
+            });
+        }, 5 * 60 * 1000);
+
+        // 공유 기능
+        function shareTwitter() {
+            const url = window.location.href;
+            const text = `🌍 ${COUNTRIES[currentCountry]?.name || '글로벌'} 실시간 인기 검색어를 확인해보세요!`;
+            const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+            window.open(twitterUrl, '_blank', 'width=550,height=420');
+            
+            // Google Analytics 이벤트 추적
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'share', {
+                    method: 'Twitter',
+                    content_type: 'trends',
+                    item_id: currentCountry
+                });
+            }
+        }
+
+        function shareFacebook() {
+            const url = window.location.href;
+            const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+            window.open(facebookUrl, '_blank', 'width=550,height=420');
+            
+            // Google Analytics 이벤트 추적
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'share', {
+                    method: 'Facebook',
+                    content_type: 'trends',
+                    item_id: currentCountry
+                });
+            }
+        }
+
+        function copyLink() {
+            const url = window.location.href;
+            navigator.clipboard.writeText(url).then(() => {
+                const btn = document.getElementById('copyLinkBtn');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '✅ 복사됨!';
+                btn.classList.add('copied');
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.classList.remove('copied');
+                }, 2000);
+                
+                // Google Analytics 이벤트 추적
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'share', {
+                        method: 'Copy Link',
+                        content_type: 'trends',
+                        item_id: currentCountry
+                    });
+                }
+            }).catch(err => {
+                alert('링크 복사에 실패했습니다.');
+            });
+        }
+    </script>
+</body>
+</html>
