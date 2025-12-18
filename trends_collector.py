@@ -212,49 +212,54 @@ def get_news_for_keyword(keyword, country_code):
         return []
 
 def analyze_keyword_with_gpt(keyword, news_data, country_name):
-    """GPT-4로 키워드 분석 (정확도 향상 버전)"""
+    """GPT-4로 키워드 분석 (프롬프트 개선 버전)"""
     try:
         if not news_data:
             return f"{keyword}에 대한 최신 뉴스를 찾을 수 없어 분석이 어렵습니다."
         
-        # 뉴스 데이터를 더 상세하게 포맷팅
-        news_text = ""
-        for i, news in enumerate(news_data, 1):
-            news_text += f"\n[뉴스 {i}]\n"
-            news_text += f"제목: {news['title']}\n"
-            if news['description']:
-                news_text += f"내용: {news['description']}\n"
-            news_text += f"발행: {news['published']}\n"
+        # 뉴스 내용만 추출 (메타 정보 제거)
+        news_contents = []
+        for news in news_data:
+            if news['title']:
+                content = f"{news['title']}. {news['description']}"
+                news_contents.append(content)
+        
+        news_text = "\n\n".join(news_contents)
         
         prompt = f"""당신은 글로벌 트렌드 분석 전문가입니다.
 
 키워드: "{keyword}"
 국가: {country_name}
 
-최신 뉴스:
+관련 뉴스:
 {news_text}
 
 위 뉴스 내용을 바탕으로, 이 키워드가 {country_name}에서 왜 인기 검색어가 되었는지 분석해주세요.
 
 작성 규칙:
-1. 반드시 제공된 뉴스 내용만을 근거로 작성
-2. 추측이나 상상 금지
-3. 3-4줄로 간단명료하게
-4. 구체적인 사실과 수치 위주로
+1. "뉴스 1, 2, 3" 또는 "[뉴스 1]" 같은 메타 언급 절대 금지
+2. 구체적인 사건, 인물, 날짜, 수치만 작성
+3. 추측이나 일반론 금지 - 오직 뉴스에 나온 사실만
+4. 3-4문장으로 간결하게
 5. 한국어로 작성
 
-예시 형식:
-"[키워드]는 [구체적 사건/발표]로 인해 주목받고 있습니다. [뉴스 내용 요약]. 이로 인해 [영향/결과]가 예상되며, 대중의 관심이 집중되고 있습니다."
+좋은 예시:
+"테일러 스위프트는 12월 15일 뉴욕에서 새 앨범 발매 기념 콘서트를 개최했습니다. 이번 콘서트는 5만 명의 관중을 동원하며 매진을 기록했습니다. 새 앨범은 빌보드 차트 1위를 차지했습니다."
+
+절대 하지 말아야 할 예시:
+"뉴스 1,2,3에 따르면 테일러 스위프트가 화제입니다."
+"여러 뉴스에서 보도되고 있으며 팬들의 관심이 높습니다."
 """
 
+        # 원래 작동하던 방식 그대로 사용
         response = openai.ChatCompletion.create(
             model="gpt-4",
             messages=[
-                {"role": "system", "content": "당신은 팩트 기반의 트렌드 분석 전문가입니다. 추측 없이 오직 제공된 뉴스 내용만을 바탕으로 정확하게 분석합니다."},
+                {"role": "system", "content": "당신은 뉴스 기사를 분석하여 팩트만을 추출하는 전문가입니다. 메타 정보나 추측 없이 오직 구체적인 사실만 전달합니다."},
                 {"role": "user", "content": prompt}
             ],
-            max_tokens=300,  # 200->300으로 증가
-            temperature=0.2   # 0.3->0.2로 감소 (더 정확하게)
+            max_tokens=300,
+            temperature=0.1
         )
         
         explanation = response.choices[0].message.content.strip()
@@ -263,7 +268,6 @@ def analyze_keyword_with_gpt(keyword, news_data, country_name):
         
     except Exception as e:
         print(f"    ❌ GPT 분석 실패: {e}")
-        # 뉴스 제목만이라도 제공
         if news_data:
             titles = " | ".join([n['title'][:50] for n in news_data[:2]])
             return f"{keyword}: {titles}... 등의 이유로 트렌딩 중입니다."
@@ -352,7 +356,7 @@ def main():
     # 3시간마다 자동 실행
     schedule.every(3).hours.do(collect_all_trends)
     
-    print("\n⏰스케줄러 시작 - 3시간마다 자동 수집")
+    print("\n⏰ 스케줄러 시작 - 3시간마다 자동 수집")
     print("   (중지하려면 Ctrl+C를 누르세요)\n")
     
     while True:

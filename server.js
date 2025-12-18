@@ -35,7 +35,13 @@ async function connectDB() {
 // 미들웨어
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public'));
+
+// 정적 파일 캐시 설정
+app.use(express.static('public', {
+    maxAge: '1h', // 1시간 캐시
+    etag: true,
+    lastModified: true
+}));
 
 // API: 모든 국가의 트렌드 가져오기
 app.get('/api/trends', async (req, res) => {
@@ -96,21 +102,29 @@ app.get('/api/trends/:country', async (req, res) => {
     }
 });
 
-// 루트 경로
+// 루트 경로 - 브라우저 언어로 리다이렉트
 app.get('/', (req, res) => {
+    const acceptLang = req.headers['accept-language'];
+    let lang = 'en';
+    
+    if (acceptLang) {
+        const browserLang = acceptLang.split(',')[0].split('-')[0];
+        if (['de', 'fr', 'ja', 'ko', 'no', 'sv'].includes(browserLang)) {
+            lang = browserLang;
+        }
+    }
+    
+    res.redirect(`/${lang}`);
+});
+
+// 언어별 루트 (/en, /de, /ja, /ko, /fr, /no, /sv)
+app.get('/:lang(en|de|fr|ja|ko|no|sv)', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// 국가별 URL 라우팅 (/us, /kr, /jp 등)
-app.get('/:country', (req, res) => {
-    const country = req.params.country.toUpperCase();
-    const validCountries = ['US', 'CA', 'AU', 'GB', 'DE', 'FR', 'NO', 'SE', 'JP', 'KR', 'SG'];
-    
-    if (validCountries.includes(country)) {
-        res.sendFile(path.join(__dirname, 'public', 'index.html'));
-    } else {
-        res.status(404).send('Country not found');
-    }
+// 언어 + 국가 (/en/us, /de/de, /ja/jp 등)
+app.get('/:lang(en|de|fr|ja|ko|no|sv)/:country(us|ca|au|gb|de|fr|no|se|jp|kr|sg)', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // 서버 시작 (로컬) 또는 export (Vercel)
@@ -122,6 +136,7 @@ if (process.env.NODE_ENV !== 'production') {
             console.log('🚀 트렌드 웹사이트 서버 시작!');
             console.log(`📡 웹사이트: http://localhost:${PORT}`);
             console.log(`📊 API: http://localhost:${PORT}/api/trends`);
+            console.log(`🌍 다국어: http://localhost:${PORT}/en (en/de/fr/ja/ko/no/sv)`);
             console.log('='.repeat(50));
         });
     });
