@@ -372,17 +372,19 @@ Ange ENDAST förklaringstexten."""
 def save_to_mongodb(country_code, country_name, keywords_data):
     """MongoDB에 저장"""
     try:
+        from datetime import timezone
+        
         document = {
             'country_code': country_code,
             'country_name': country_name,
             'keywords': keywords_data,
-            'updated_at': datetime.now(),
-            'timestamp': datetime.now().isoformat()
+            'updated_at': datetime.now(timezone.utc),  # UTC 시간으로 저장
+            'timestamp': datetime.now(timezone.utc).isoformat()
         }
         
         collection.delete_many({'country_code': country_code})
         collection.insert_one(document)
-        print(f"💾 {country_name} 데이터 저장 완료\n")
+        print(f"💾 {country_name} 데이터 저장 완료 (UTC: {document['updated_at']})\n")
         
     except Exception as e:
         print(f"❌ MongoDB 저장 실패: {e}\n")
