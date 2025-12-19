@@ -1,40 +1,15 @@
 const { MongoClient } = require('mongodb');
 
-const MONGODB_URI = process.env.MONGODB_URI;
-
-let cachedClient = null;
-let cachedDb = null;
-
-async function connectToDatabase() {
-    if (cachedClient && cachedDb) {
-        return { client: cachedClient, db: cachedDb };
-    }
-
-    const client = await MongoClient.connect(MONGODB_URI, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-    });
-
-    const db = client.db('trending_keywords');
-
-    cachedClient = client;
-    cachedDb = db;
-
-    return { client, db };
-}
-
 module.exports = async (req, res) => {
-    // CORS 헤더 설정
+    // CORS 설정
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-    // OPTIONS 요청 처리
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
     }
 
-    // GET 요청만 허용
     if (req.method !== 'GET') {
         return res.status(405).json({
             success: false,
@@ -43,33 +18,55 @@ module.exports = async (req, res) => {
     }
 
     try {
+        // 환경변수 체크
+        if (!process.env.MONGODB_URI) {
+            return res.status(500).json({
+                success: false,
+                error: 'MONGODB_URI not configured',
+                debug: 'Environment variable missing'
+            });
+        }
+
         // MongoDB 연결
-        const { db } = await connectToDatabase();
+        const client = await MongoClient.connect(process.env.MONGODB_URI, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+        });
+
+        const db = client.db('trending_keywords');
         const collection = db.collection('keywords');
 
-        // 모든 국가의 트렌드 데이터 가져오기
+        // 데이터 조회
         const trends = await collection
             .find({})
             .sort({ updated_at: -1 })
             .toArray();
 
+        await client.close();
+
+        // 데이터가 없을 경우
         if (!trends || trends.length === 0) {
             return res.status(200).json({
                 success: true,
                 data: [],
-                message: 'No trends data available yet'
+                message: 'No trends data available yet. Please run trends_collector.py first.',
+                debug: {
+                    hasMongoUri: true,
+                    collectionName: 'keywords',
+                    dbName: 'trending_keywords'
+                }
             });
         }
 
-        // 응답 데이터 포맷팅
+        // 데이터 포맷팅
         const formattedData = trends.map(trend => ({
             country_code: trend.country_code,
             country_name: trend.country_name,
             updated_at: trend.updated_at,
-            keywords: trend.keywords.map(kw => ({
+            keywords: (trend.keywords || []).map(kw => ({
                 rank: kw.rank,
                 keyword: kw.keyword,
-                explanations: kw.explanations || {}, // 다국어 설명 객체
+                explanations: kw.explanations || {},
                 news_count: kw.news_count || 0
             }))
         }));
@@ -85,8 +82,12 @@ module.exports = async (req, res) => {
         console.error('API Error:', error);
         return res.status(500).json({
             success: false,
-            error: 'Internal server error',
-            message: error.message
+            error: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+            debug: {
+                hasMongoUri: !!process.env.MONGODB_URI,
+                errorName: error.name
+            }
         });
     }
 };
