@@ -12,7 +12,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from gnews import GNews
 import openai
 from pymongo import MongoClient
-import schedule
+
 
 # MongoDB 연결
 MONGODB_URI = os.environ.get('MONGODB_URI', 'mongodb://localhost:27017/')
