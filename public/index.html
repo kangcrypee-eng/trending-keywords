@@ -432,200 +432,233 @@
     </div>
 
     <script>
-        // 국가별 설정
-        const COUNTRY_CONFIG = {
-            'US': {
+        // 국가 정보 (코드, 국기, 시간대)
+        const COUNTRIES = {
+            'US': { flag: '🇺🇸', timezone: 'America/New_York' },
+            'CA': { flag: '🇨🇦', timezone: 'America/Toronto' },
+            'AU': { flag: '🇦🇺', timezone: 'Australia/Sydney' },
+            'GB': { flag: '🇬🇧', timezone: 'Europe/London' },
+            'DE': { flag: '🇩🇪', timezone: 'Europe/Berlin' },
+            'FR': { flag: '🇫🇷', timezone: 'Europe/Paris' },
+            'NO': { flag: '🇳🇴', timezone: 'Europe/Oslo' },
+            'SE': { flag: '🇸🇪', timezone: 'Europe/Stockholm' },
+            'JP': { flag: '🇯🇵', timezone: 'Asia/Tokyo' },
+            'KR': { flag: '🇰🇷', timezone: 'Asia/Seoul' },
+            'SG': { flag: '🇸🇬', timezone: 'Asia/Singapore' }
+        };
+
+        // 언어별 번역
+        const TRANSLATIONS = {
+            'en': {
                 lang: 'en',
-                name: 'United States',
-                flag: '🇺🇸',
-                timezone: 'America/New_York',
-                translations: {
-                    mainTitle: '🌍 Real-time Trending Keywords - USA',
-                    subtitle: 'Check trending keywords from around the world in real-time',
-                    lastUpdated: 'Last Updated: ',
-                    loading: '🔄 Loading data...',
-                    shareTitle: 'Share',
-                    footer: '© 2024 RealtimeKeyword. Updates every 3 hours | Data source: Google Trends',
-                    metaTitle: 'Real-time Trending Keywords - USA',
-                    metaDescription: 'Check real-time trending keywords from the United States and around the world.',
-                    metaKeywords: 'trending keywords, trends, Google Trends, USA trends'
+                mainTitle: '🌍 Real-time Trending Keywords',
+                subtitle: 'Check trending keywords from around the world in real-time',
+                lastUpdated: 'Last Updated: ',
+                loading: '🔄 Loading data...',
+                shareTitle: 'Share',
+                footer: '© 2024 RealtimeKeyword. Updates every 3 hours | Data source: Google Trends',
+                retry: 'Retry',
+                errorPrefix: '❌ ',
+                metaTitle: 'Real-time Trending Keywords',
+                metaDescription: 'Check real-time trending keywords from around the world.',
+                metaKeywords: 'trending keywords, trends, Google Trends, real-time search',
+                countryNames: {
+                    'US': 'United States',
+                    'CA': 'Canada',
+                    'AU': 'Australia',
+                    'GB': 'United Kingdom',
+                    'DE': 'Germany',
+                    'FR': 'France',
+                    'NO': 'Norway',
+                    'SE': 'Sweden',
+                    'JP': 'Japan',
+                    'KR': 'South Korea',
+                    'SG': 'Singapore'
                 }
             },
-            'CA': {
-                lang: 'en',
-                name: 'Canada',
-                flag: '🇨🇦',
-                timezone: 'America/Toronto',
-                translations: {
-                    mainTitle: '🌍 Real-time Trending Keywords - Canada',
-                    subtitle: 'Check trending keywords from around the world in real-time',
-                    lastUpdated: 'Last Updated: ',
-                    loading: '🔄 Loading data...',
-                    shareTitle: 'Share',
-                    footer: '© 2024 RealtimeKeyword. Updates every 3 hours | Data source: Google Trends',
-                    metaTitle: 'Real-time Trending Keywords - Canada',
-                    metaDescription: 'Check real-time trending keywords from Canada and around the world.',
-                    metaKeywords: 'trending keywords, trends, Google Trends, Canada trends'
-                }
-            },
-            'AU': {
-                lang: 'en',
-                name: 'Australia',
-                flag: '🇦🇺',
-                timezone: 'Australia/Sydney',
-                translations: {
-                    mainTitle: '🌍 Real-time Trending Keywords - Australia',
-                    subtitle: 'Check trending keywords from around the world in real-time',
-                    lastUpdated: 'Last Updated: ',
-                    loading: '🔄 Loading data...',
-                    shareTitle: 'Share',
-                    footer: '© 2024 RealtimeKeyword. Updates every 3 hours | Data source: Google Trends',
-                    metaTitle: 'Real-time Trending Keywords - Australia',
-                    metaDescription: 'Check real-time trending keywords from Australia and around the world.',
-                    metaKeywords: 'trending keywords, trends, Google Trends, Australia trends'
-                }
-            },
-            'GB': {
-                lang: 'en',
-                name: 'United Kingdom',
-                flag: '🇬🇧',
-                timezone: 'Europe/London',
-                translations: {
-                    mainTitle: '🌍 Real-time Trending Keywords - UK',
-                    subtitle: 'Check trending keywords from around the world in real-time',
-                    lastUpdated: 'Last Updated: ',
-                    loading: '🔄 Loading data...',
-                    shareTitle: 'Share',
-                    footer: '© 2024 RealtimeKeyword. Updates every 3 hours | Data source: Google Trends',
-                    metaTitle: 'Real-time Trending Keywords - UK',
-                    metaDescription: 'Check real-time trending keywords from the United Kingdom and around the world.',
-                    metaKeywords: 'trending keywords, trends, Google Trends, UK trends'
-                }
-            },
-            'DE': {
-                lang: 'de',
-                name: 'Deutschland',
-                flag: '🇩🇪',
-                timezone: 'Europe/Berlin',
-                translations: {
-                    mainTitle: '🌍 Echtzeit-Trendschlüsselwörter - Deutschland',
-                    subtitle: 'Überprüfen Sie Trendschlüsselwörter aus der ganzen Welt in Echtzeit',
-                    lastUpdated: 'Zuletzt aktualisiert: ',
-                    loading: '🔄 Daten werden geladen...',
-                    shareTitle: 'Teilen',
-                    footer: '© 2024 RealtimeKeyword. Aktualisiert alle 3 Stunden | Datenquelle: Google Trends',
-                    metaTitle: 'Echtzeit-Trendschlüsselwörter - Deutschland',
-                    metaDescription: 'Überprüfen Sie Echtzeit-Trendschlüsselwörter aus Deutschland und der ganzen Welt.',
-                    metaKeywords: 'Trendschlüsselwörter, Trends, Google Trends, Deutschland Trends'
-                }
-            },
-            'FR': {
-                lang: 'fr',
-                name: 'France',
-                flag: '🇫🇷',
-                timezone: 'Europe/Paris',
-                translations: {
-                    mainTitle: '🌍 Mots-clés tendance en temps réel - France',
-                    subtitle: 'Vérifiez les mots-clés tendance du monde entier en temps réel',
-                    lastUpdated: 'Dernière mise à jour: ',
-                    loading: '🔄 Chargement des données...',
-                    shareTitle: 'Partager',
-                    footer: '© 2024 RealtimeKeyword. Mise à jour toutes les 3 heures | Source de données: Google Trends',
-                    metaTitle: 'Mots-clés tendance en temps réel - France',
-                    metaDescription: 'Vérifiez les mots-clés tendance en temps réel de France et du monde entier.',
-                    metaKeywords: 'mots-clés tendance, tendances, Google Trends, tendances France'
-                }
-            },
-            'NO': {
-                lang: 'no',
-                name: 'Norge',
-                flag: '🇳🇴',
-                timezone: 'Europe/Oslo',
-                translations: {
-                    mainTitle: '🌍 Sanntids trendsøkeord - Norge',
-                    subtitle: 'Sjekk trendsøkeord fra hele verden i sanntid',
-                    lastUpdated: 'Sist oppdatert: ',
-                    loading: '🔄 Laster data...',
-                    shareTitle: 'Del',
-                    footer: '© 2024 RealtimeKeyword. Oppdateres hver 3. time | Datakilde: Google Trends',
-                    metaTitle: 'Sanntids trendsøkeord - Norge',
-                    metaDescription: 'Sjekk sanntids trendsøkeord fra Norge og hele verden.',
-                    metaKeywords: 'trendsøkeord, trender, Google Trends, Norge trender'
-                }
-            },
-            'SE': {
-                lang: 'sv',
-                name: 'Sverige',
-                flag: '🇸🇪',
-                timezone: 'Europe/Stockholm',
-                translations: {
-                    mainTitle: '🌍 Realtidstrendande sökord - Sverige',
-                    subtitle: 'Kolla trendande sökord från hela världen i realtid',
-                    lastUpdated: 'Senast uppdaterad: ',
-                    loading: '🔄 Laddar data...',
-                    shareTitle: 'Dela',
-                    footer: '© 2024 RealtimeKeyword. Uppdateras var 3:e timme | Datakälla: Google Trends',
-                    metaTitle: 'Realtidstrendande sökord - Sverige',
-                    metaDescription: 'Kolla realtidstrendande sökord från Sverige och hela världen.',
-                    metaKeywords: 'trendande sökord, trender, Google Trends, Sverige trender'
-                }
-            },
-            'JP': {
-                lang: 'ja',
-                name: '日本',
-                flag: '🇯🇵',
-                timezone: 'Asia/Tokyo',
-                translations: {
-                    mainTitle: '🌍 リアルタイムトレンドキーワード - 日本',
-                    subtitle: '世界中のトレンドキーワードをリアルタイムでチェック',
-                    lastUpdated: '最終更新: ',
-                    loading: '🔄 データを読み込んでいます...',
-                    shareTitle: '共有',
-                    footer: '© 2024 RealtimeKeyword. 3時間ごとに更新 | データソース: Google Trends',
-                    metaTitle: 'リアルタイムトレンドキーワード - 日本',
-                    metaDescription: '日本と世界中のリアルタイムトレンドキーワードをチェック。',
-                    metaKeywords: 'トレンドキーワード, トレンド, Google Trends, 日本のトレンド'
-                }
-            },
-            'KR': {
+            'ko': {
                 lang: 'ko',
-                name: '한국',
-                flag: '🇰🇷',
-                timezone: 'Asia/Seoul',
-                translations: {
-                    mainTitle: '🌍 실시간 인기 검색어 - 한국',
-                    subtitle: '전 세계 트렌딩 키워드를 실시간으로 확인하세요',
-                    lastUpdated: '마지막 업데이트: ',
-                    loading: '🔄 데이터를 불러오는 중...',
-                    shareTitle: '공유하기',
-                    footer: '© 2024 RealtimeKeyword. 3시간마다 자동 업데이트 | 데이터 출처: Google Trends',
-                    metaTitle: '실시간 인기 검색어 - 한국',
-                    metaDescription: '한국과 전 세계의 실시간 인기 검색어를 확인하세요.',
-                    metaKeywords: '실시간 검색어, 트렌드, 인기 검색어, Google Trends, 한국 트렌드'
+                mainTitle: '🌍 실시간 인기 검색어',
+                subtitle: '전 세계 트렌딩 키워드를 실시간으로 확인하세요',
+                lastUpdated: '마지막 업데이트: ',
+                loading: '🔄 데이터를 불러오는 중...',
+                shareTitle: '공유하기',
+                footer: '© 2024 RealtimeKeyword. 3시간마다 자동 업데이트 | 데이터 출처: Google Trends',
+                retry: '다시 시도',
+                errorPrefix: '❌ ',
+                metaTitle: '실시간 인기 검색어',
+                metaDescription: '전 세계의 실시간 인기 검색어를 확인하세요.',
+                metaKeywords: '실시간 검색어, 트렌드, 인기 검색어, Google Trends, 글로벌 트렌드',
+                countryNames: {
+                    'US': '미국',
+                    'CA': '캐나다',
+                    'AU': '호주',
+                    'GB': '영국',
+                    'DE': '독일',
+                    'FR': '프랑스',
+                    'NO': '노르웨이',
+                    'SE': '스웨덴',
+                    'JP': '일본',
+                    'KR': '한국',
+                    'SG': '싱가포르'
                 }
             },
-            'SG': {
-                lang: 'en',
-                name: 'Singapore',
-                flag: '🇸🇬',
-                timezone: 'Asia/Singapore',
-                translations: {
-                    mainTitle: '🌍 Real-time Trending Keywords - Singapore',
-                    subtitle: 'Check trending keywords from around the world in real-time',
-                    lastUpdated: 'Last Updated: ',
-                    loading: '🔄 Loading data...',
-                    shareTitle: 'Share',
-                    footer: '© 2024 RealtimeKeyword. Updates every 3 hours | Data source: Google Trends',
-                    metaTitle: 'Real-time Trending Keywords - Singapore',
-                    metaDescription: 'Check real-time trending keywords from Singapore and around the world.',
-                    metaKeywords: 'trending keywords, trends, Google Trends, Singapore trends'
+            'ja': {
+                lang: 'ja',
+                mainTitle: '🌍 リアルタイムトレンドキーワード',
+                subtitle: '世界中のトレンドキーワードをリアルタイムでチェック',
+                lastUpdated: '最終更新: ',
+                loading: '🔄 データを読み込んでいます...',
+                shareTitle: '共有',
+                footer: '© 2024 RealtimeKeyword. 3時間ごとに更新 | データソース: Google Trends',
+                retry: '再試行',
+                errorPrefix: '❌ ',
+                metaTitle: 'リアルタイムトレンドキーワード',
+                metaDescription: '世界中のリアルタイムトレンドキーワードをチェック。',
+                metaKeywords: 'トレンドキーワード, トレンド, Google Trends, リアルタイム検索',
+                countryNames: {
+                    'US': 'アメリカ',
+                    'CA': 'カナダ',
+                    'AU': 'オーストラリア',
+                    'GB': 'イギリス',
+                    'DE': 'ドイツ',
+                    'FR': 'フランス',
+                    'NO': 'ノルウェー',
+                    'SE': 'スウェーデン',
+                    'JP': '日本',
+                    'KR': '韓国',
+                    'SG': 'シンガポール'
+                }
+            },
+            'de': {
+                lang: 'de',
+                mainTitle: '🌍 Echtzeit-Trendschlüsselwörter',
+                subtitle: 'Überprüfen Sie Trendschlüsselwörter aus der ganzen Welt in Echtzeit',
+                lastUpdated: 'Zuletzt aktualisiert: ',
+                loading: '🔄 Daten werden geladen...',
+                shareTitle: 'Teilen',
+                footer: '© 2024 RealtimeKeyword. Aktualisiert alle 3 Stunden | Datenquelle: Google Trends',
+                retry: 'Erneut versuchen',
+                errorPrefix: '❌ ',
+                metaTitle: 'Echtzeit-Trendschlüsselwörter',
+                metaDescription: 'Überprüfen Sie Echtzeit-Trendschlüsselwörter aus der ganzen Welt.',
+                metaKeywords: 'Trendschlüsselwörter, Trends, Google Trends, Echtzeitsuche',
+                countryNames: {
+                    'US': 'Vereinigte Staaten',
+                    'CA': 'Kanada',
+                    'AU': 'Australien',
+                    'GB': 'Vereinigtes Königreich',
+                    'DE': 'Deutschland',
+                    'FR': 'Frankreich',
+                    'NO': 'Norwegen',
+                    'SE': 'Schweden',
+                    'JP': 'Japan',
+                    'KR': 'Südkorea',
+                    'SG': 'Singapur'
+                }
+            },
+            'fr': {
+                lang: 'fr',
+                mainTitle: '🌍 Mots-clés tendance en temps réel',
+                subtitle: 'Vérifiez les mots-clés tendance du monde entier en temps réel',
+                lastUpdated: 'Dernière mise à jour: ',
+                loading: '🔄 Chargement des données...',
+                shareTitle: 'Partager',
+                footer: '© 2024 RealtimeKeyword. Mise à jour toutes les 3 heures | Source de données: Google Trends',
+                retry: 'Réessayer',
+                errorPrefix: '❌ ',
+                metaTitle: 'Mots-clés tendance en temps réel',
+                metaDescription: 'Vérifiez les mots-clés tendance en temps réel du monde entier.',
+                metaKeywords: 'mots-clés tendance, tendances, Google Trends, recherche en temps réel',
+                countryNames: {
+                    'US': 'États-Unis',
+                    'CA': 'Canada',
+                    'AU': 'Australie',
+                    'GB': 'Royaume-Uni',
+                    'DE': 'Allemagne',
+                    'FR': 'France',
+                    'NO': 'Norvège',
+                    'SE': 'Suède',
+                    'JP': 'Japon',
+                    'KR': 'Corée du Sud',
+                    'SG': 'Singapour'
+                }
+            },
+            'no': {
+                lang: 'no',
+                mainTitle: '🌍 Sanntids trendsøkeord',
+                subtitle: 'Sjekk trendsøkeord fra hele verden i sanntid',
+                lastUpdated: 'Sist oppdatert: ',
+                loading: '🔄 Laster data...',
+                shareTitle: 'Del',
+                footer: '© 2024 RealtimeKeyword. Oppdateres hver 3. time | Datakilde: Google Trends',
+                retry: 'Prøv igjen',
+                errorPrefix: '❌ ',
+                metaTitle: 'Sanntids trendsøkeord',
+                metaDescription: 'Sjekk sanntids trendsøkeord fra hele verden.',
+                metaKeywords: 'trendsøkeord, trender, Google Trends, sanntidssøk',
+                countryNames: {
+                    'US': 'USA',
+                    'CA': 'Canada',
+                    'AU': 'Australia',
+                    'GB': 'Storbritannia',
+                    'DE': 'Tyskland',
+                    'FR': 'Frankrike',
+                    'NO': 'Norge',
+                    'SE': 'Sverige',
+                    'JP': 'Japan',
+                    'KR': 'Sør-Korea',
+                    'SG': 'Singapore'
+                }
+            },
+            'sv': {
+                lang: 'sv',
+                mainTitle: '🌍 Realtidstrendande sökord',
+                subtitle: 'Kolla trendande sökord från hela världen i realtid',
+                lastUpdated: 'Senast uppdaterad: ',
+                loading: '🔄 Laddar data...',
+                shareTitle: 'Dela',
+                footer: '© 2024 RealtimeKeyword. Uppdateras var 3:e timme | Datakälla: Google Trends',
+                retry: 'Försök igen',
+                errorPrefix: '❌ ',
+                metaTitle: 'Realtidstrendande sökord',
+                metaDescription: 'Kolla realtidstrendande sökord från hela världen.',
+                metaKeywords: 'trendande sökord, trender, Google Trends, realtidssökning',
+                countryNames: {
+                    'US': 'USA',
+                    'CA': 'Kanada',
+                    'AU': 'Australien',
+                    'GB': 'Storbritannien',
+                    'DE': 'Tyskland',
+                    'FR': 'Frankrike',
+                    'NO': 'Norge',
+                    'SE': 'Sverige',
+                    'JP': 'Japan',
+                    'KR': 'Sydkorea',
+                    'SG': 'Singapore'
                 }
             }
         };
 
+        // 국가 코드별 언어 매핑
+        const COUNTRY_TO_LANGUAGE = {
+            'US': 'en',
+            'CA': 'en',
+            'AU': 'en',
+            'GB': 'en',
+            'DE': 'de',
+            'FR': 'fr',
+            'NO': 'no',
+            'SE': 'sv',
+            'JP': 'ja',
+            'KR': 'ko',
+            'SG': 'en'
+        };
+
         let trendsData = {};
         let currentCountry = null;
-        let currentConfig = null;
+        let currentLanguage = 'en';
+        let currentTranslations = TRANSLATIONS['en'];
 
         // URL에서 국가 코드 추출
         function getCountryFromURL() {
@@ -643,29 +676,27 @@
             window.history.pushState({ country: countryCode }, '', url);
         }
 
-        // 페이지 언어 및 콘텐츠 설정
-        function applyCountryConfig(countryCode) {
-            const config = COUNTRY_CONFIG[countryCode];
-            if (!config) return;
-
-            currentConfig = config;
+        // 언어 설정 적용 (URL 국가 코드 기반)
+        function applyLanguage(countryCode) {
+            currentLanguage = COUNTRY_TO_LANGUAGE[countryCode] || 'en';
+            currentTranslations = TRANSLATIONS[currentLanguage];
 
             // HTML lang 속성 변경
-            document.documentElement.lang = config.lang;
+            document.documentElement.lang = currentLanguage;
 
             // 페이지 콘텐츠 변경
-            document.getElementById('mainTitle').textContent = config.translations.mainTitle;
-            document.getElementById('subtitle').textContent = config.translations.subtitle;
-            document.getElementById('loadingText').textContent = config.translations.loading;
-            document.getElementById('shareTitle').textContent = config.translations.shareTitle;
-            document.getElementById('footerText').textContent = config.translations.footer;
+            document.getElementById('mainTitle').textContent = currentTranslations.mainTitle;
+            document.getElementById('subtitle').textContent = currentTranslations.subtitle;
+            document.getElementById('loadingText').textContent = currentTranslations.loading;
+            document.getElementById('shareTitle').textContent = currentTranslations.shareTitle;
+            document.getElementById('footerText').textContent = currentTranslations.footer;
 
             // 메타 태그 업데이트
-            document.title = config.translations.metaTitle;
-            updateMetaTag('name', 'description', config.translations.metaDescription);
-            updateMetaTag('name', 'keywords', config.translations.metaKeywords);
-            updateMetaTag('property', 'og:title', config.translations.metaTitle);
-            updateMetaTag('property', 'og:description', config.translations.metaDescription);
+            document.title = currentTranslations.metaTitle;
+            updateMetaTag('name', 'description', currentTranslations.metaDescription);
+            updateMetaTag('name', 'keywords', currentTranslations.metaKeywords);
+            updateMetaTag('property', 'og:title', currentTranslations.metaTitle);
+            updateMetaTag('property', 'og:description', currentTranslations.metaDescription);
         }
 
         // 메타 태그 업데이트 헬퍼 함수
@@ -714,16 +745,16 @@
                 loadingEl.style.display = 'none';
                 tabsEl.style.display = 'flex';
 
-                createTabs();
-                createCards();
-                updateLastUpdated(result.data);
-
-                // URL에서 국가 선택 또는 기본값
+                // URL에서 국가 선택
                 const urlCountry = getCountryFromURL();
                 const initialCountry = (urlCountry && trendsData[urlCountry]) ? urlCountry : 'US';
                 
-                // 국가별 설정 적용
-                applyCountryConfig(initialCountry);
+                // 언어 설정 적용 (이 국가의 언어로 전체 페이지 표시)
+                applyLanguage(initialCountry);
+
+                createTabs();
+                createCards();
+                updateLastUpdated(result.data);
                 selectCountry(initialCountry);
 
             } catch (error) {
@@ -731,53 +762,48 @@
                 errorEl.style.display = 'block';
                 errorEl.className = 'error';
                 errorEl.innerHTML = `
-                    ❌ ${error.message}
+                    ${currentTranslations.errorPrefix}${error.message}
                     <br><br>
-                    <button class="reload-button" onclick="loadTrends()">Retry</button>
+                    <button class="reload-button" onclick="loadTrends()">${currentTranslations.retry}</button>
                 `;
             }
         }
 
-        // 국가 탭 생성
+        // 국가 탭 생성 (현재 언어로)
         function createTabs() {
             const tabsEl = document.getElementById('countryTabs');
             tabsEl.innerHTML = '';
 
-            Object.keys(COUNTRY_CONFIG).forEach(code => {
+            Object.keys(COUNTRIES).forEach(code => {
                 if (!trendsData[code]) return;
 
-                const config = COUNTRY_CONFIG[code];
                 const tab = document.createElement('button');
                 tab.className = 'country-tab';
                 tab.dataset.country = code;
                 tab.innerHTML = `
-                    <span class="country-flag">${config.flag}</span>
-                    <span>${config.name}</span>
+                    <span class="country-flag">${COUNTRIES[code].flag}</span>
+                    <span>${currentTranslations.countryNames[code]}</span>
                 `;
-                tab.onclick = () => {
-                    applyCountryConfig(code);
-                    selectCountry(code);
-                };
+                tab.onclick = () => selectCountry(code);
                 tabsEl.appendChild(tab);
             });
         }
 
-        // 트렌드 카드 생성
+        // 트렌드 카드 생성 (현재 언어로)
         function createCards() {
             const containerEl = document.getElementById('trendsContainer');
             containerEl.innerHTML = '';
 
             Object.keys(trendsData).forEach(code => {
                 const trend = trendsData[code];
-                const config = COUNTRY_CONFIG[code];
                 const card = document.createElement('div');
                 card.className = 'trend-card';
                 card.dataset.country = code;
 
                 card.innerHTML = `
                     <div class="card-header">
-                        <span class="card-country">${trend.country_name}</span>
-                        <span class="card-flag">${config.flag}</span>
+                        <span class="card-country">${currentTranslations.countryNames[code]}</span>
+                        <span class="card-flag">${COUNTRIES[code].flag}</span>
                     </div>
                     <ul class="keywords-list">
                         ${trend.keywords.map(kw => `
@@ -796,7 +822,7 @@
             });
         }
 
-        // 국가 선택
+        // 국가 선택 (언어는 변경하지 않음)
         function selectCountry(countryCode) {
             currentCountry = countryCode;
 
@@ -820,6 +846,11 @@
                     card.classList.remove('active');
                 }
             });
+
+            // 시간 업데이트 (선택한 국가의 시간대로)
+            if (trendsData[countryCode]) {
+                updateLastUpdatedForCountry(countryCode);
+            }
         }
 
         // HTML 이스케이프
@@ -829,41 +860,56 @@
             return div.innerHTML;
         }
 
-        // 마지막 업데이트 시간 (국가별 시간대)
+        // 마지막 업데이트 시간 (전체 데이터 기준)
         function updateLastUpdated(trends) {
             if (!trends || trends.length === 0) return;
-
             const lastUpdated = new Date(trends[0].updated_at);
-            const config = currentConfig || COUNTRY_CONFIG['US'];
+            updateLastUpdatedForCountry(currentCountry, lastUpdated);
+        }
+
+        // 선택한 국가의 시간대로 업데이트 시간 표시
+        function updateLastUpdatedForCountry(countryCode, date) {
+            if (!date && trendsData[countryCode]) {
+                date = new Date(trendsData[countryCode].updated_at);
+            }
+            if (!date) return;
+
+            const timezone = COUNTRIES[countryCode].timezone;
+            const locale = currentLanguage === 'ko' ? 'ko-KR' : 
+                          currentLanguage === 'ja' ? 'ja-JP' : 
+                          currentLanguage === 'de' ? 'de-DE' : 
+                          currentLanguage === 'fr' ? 'fr-FR' : 
+                          currentLanguage === 'no' ? 'no-NO' : 
+                          currentLanguage === 'sv' ? 'sv-SE' : 'en-US';
             
-            const formatted = lastUpdated.toLocaleString(config.lang === 'ko' ? 'ko-KR' : 'en-US', {
+            const formatted = date.toLocaleString(locale, {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric',
                 hour: '2-digit',
                 minute: '2-digit',
                 hour12: false,
-                timeZone: config.timezone
+                timeZone: timezone
             });
 
             document.getElementById('lastUpdated').textContent = 
-                config.translations.lastUpdated + formatted;
+                currentTranslations.lastUpdated + formatted;
         }
 
         // 브라우저 뒤로가기/앞으로가기 처리
         window.addEventListener('popstate', (event) => {
-            if (event.state && event.state.country) {
-                applyCountryConfig(event.state.country);
-                selectCountry(event.state.country);
+            const urlCountry = getCountryFromURL();
+            if (urlCountry && trendsData[urlCountry]) {
+                // 언어 재적용 후 국가 선택
+                applyLanguage(urlCountry);
+                createTabs();
+                createCards();
+                selectCountry(urlCountry);
             } else {
-                const urlCountry = getCountryFromURL();
-                if (urlCountry && trendsData[urlCountry]) {
-                    applyCountryConfig(urlCountry);
-                    selectCountry(urlCountry);
-                } else {
-                    applyCountryConfig('US');
-                    selectCountry('US');
-                }
+                applyLanguage('US');
+                createTabs();
+                createCards();
+                selectCountry('US');
             }
         });
 
@@ -872,18 +918,13 @@
 
         // 5분마다 자동 새로고침
         setInterval(() => {
-            loadTrends().then(() => {
-                if (currentCountry) {
-                    selectCountry(currentCountry);
-                }
-            });
+            loadTrends();
         }, 5 * 60 * 1000);
 
         // 공유 기능
         function shareTwitter() {
             const url = window.location.href;
-            const config = currentConfig || COUNTRY_CONFIG['US'];
-            const text = `🌍 ${config.translations.mainTitle}`;
+            const text = `${currentTranslations.mainTitle}`;
             const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
             window.open(twitterUrl, '_blank', 'width=550,height=420');
             
