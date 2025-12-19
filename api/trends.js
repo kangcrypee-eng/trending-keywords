@@ -1,5 +1,24 @@
 const { MongoClient } = require('mongodb');
 
+let cachedClient = null;
+let cachedDb = null;
+
+async function connectToDatabase() {
+    if (cachedClient && cachedDb) {
+        return { client: cachedClient, db: cachedDb };
+    }
+
+    // 옵션 제거 - 최신 MongoDB 드라이버는 자동 처리
+    const client = await MongoClient.connect(process.env.MONGODB_URI);
+
+    const db = client.db('trending_keywords');
+
+    cachedClient = client;
+    cachedDb = db;
+
+    return { client, db };
+}
+
 module.exports = async (req, res) => {
     // CORS 설정
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -22,18 +41,12 @@ module.exports = async (req, res) => {
         if (!process.env.MONGODB_URI) {
             return res.status(500).json({
                 success: false,
-                error: 'MONGODB_URI not configured',
-                debug: 'Environment variable missing'
+                error: 'MONGODB_URI not configured'
             });
         }
 
         // MongoDB 연결
-        const client = await MongoClient.connect(process.env.MONGODB_URI, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-        });
-
-        const db = client.db('trending_keywords');
+        const { db } = await connectToDatabase();
         const collection = db.collection('keywords');
 
         // 데이터 조회
@@ -42,19 +55,12 @@ module.exports = async (req, res) => {
             .sort({ updated_at: -1 })
             .toArray();
 
-        await client.close();
-
         // 데이터가 없을 경우
         if (!trends || trends.length === 0) {
             return res.status(200).json({
                 success: true,
                 data: [],
-                message: 'No trends data available yet. Please run trends_collector.py first.',
-                debug: {
-                    hasMongoUri: true,
-                    collectionName: 'keywords',
-                    dbName: 'trending_keywords'
-                }
+                message: 'No trends data available yet. Please run trends_collector.py first.'
             });
         }
 
@@ -83,7 +89,6 @@ module.exports = async (req, res) => {
         return res.status(500).json({
             success: false,
             error: error.message,
-            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
             debug: {
                 hasMongoUri: !!process.env.MONGODB_URI,
                 errorName: error.name
