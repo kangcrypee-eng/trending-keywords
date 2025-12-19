@@ -441,25 +441,16 @@ def main():
     print("="*70)
     print("🔥 실시간 트렌드 수집 시스템 시작 (다국어 지원)")
     print("="*70)
-    print(f"📅 수집 간격: 3시간마다")
     print(f"🌏 대상 국가: {', '.join(COUNTRIES.values())}")
     print(f"📊 키워드 수: 국가당 10개")
     print(f"🌐 지원 언어: 7개 (en, ko, ja, de, fr, no, sv)")
     print(f"📡 데이터 출처: Google Trends (Selenium)")
     print("="*70)
     
-    # 즉시 1회 실행
+    # GitHub Actions용: 1회만 실행
     collect_all_trends()
     
-    # 3시간마다 자동 실행
-    schedule.every(3).hours.do(collect_all_trends)
-    
-    print("\n⏰ 스케줄러 시작 - 3시간마다 자동 수집")
-    print("   (중지하려면 Ctrl+C를 누르세요)\n")
-    
-    while True:
-        schedule.run_pending()
-        time.sleep(60)
+    print("\n✅ 수집 완료!")
 
 if __name__ == "__main__":
     try:
@@ -468,3 +459,4 @@ if __name__ == "__main__":
         print("\n\n👋 프로그램 종료")
     except Exception as e:
         print(f"\n❌ 오류 발생: {e}")
+        raise  # 에러를 GitHub Actions에 전달

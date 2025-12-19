@@ -1,0 +1,49 @@
+name: Collect Trends Every 3 Hours
+
+on:
+  schedule:
+    # UTC 기준 3시간마다 실행
+    # 0시, 3시, 6시, 9시, 12시, 15시, 18시, 21시
+    - cron: '0 */3 * * *'
+  
+  # 수동으로도 실행 가능
+  workflow_dispatch:
+
+jobs:
+  collect-trends:
+    runs-on: ubuntu-latest
+    
+    steps:
+    # 1. 코드 가져오기
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    
+    # 2. Python 설치
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    # 3. Python 패키지 설치
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install selenium webdriver-manager gnews openai pymongo python-dateutil
+    
+    # 4. Chrome 브라우저 설치 (Selenium용)
+    - name: Install Chrome
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y wget unzip
+        wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+        sudo apt-get install -y ./google-chrome-stable_current_amd64.deb
+    
+    # 5. 스크립트 실행
+    - name: Run trends collector
+      env:
+        MONGODB_URI: ${{ secrets.MONGODB_URI }}
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      run: |
+        echo "🚀 Starting trend collection..."
+        python trends_collector.py
+        echo "✅ Collection completed!"
