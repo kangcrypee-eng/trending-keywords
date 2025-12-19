@@ -16,7 +16,7 @@
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
-        gtag('config', 'G-DZ3Q1GP35K'); // 실제 Google Analytics ID로 교체하세요
+        gtag('config', 'G-DZ3Q1GP35K');
     </script>
     
     <style>
@@ -269,50 +269,77 @@
             transform: scale(1.05);
         }
 
-        /* 공유 버튼 */
-        .share-buttons {
+        /* 소셜 공유 섹션 (하단) */
+        .social-share-section {
+            text-align: center;
+            padding: 30px 20px;
+            margin-top: 40px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+        }
+
+        .social-share-title {
+            color: white;
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .social-icons {
             display: flex;
-            gap: 10px;
+            gap: 20px;
             justify-content: center;
-            margin-top: 20px;
+            align-items: center;
             flex-wrap: wrap;
         }
 
-        .share-btn {
-            background: rgba(255,255,255,0.3);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 0.9em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
+        .social-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
-            gap: 6px;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-size: 28px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
 
-        .share-btn:hover {
-            background: rgba(255,255,255,0.5);
-            transform: translateY(-2px);
+        .social-icon:hover {
+            transform: translateY(-5px) scale(1.1);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.25);
         }
 
-        .share-btn.copied {
-            background: #4caf50;
+        .social-icon.twitter {
+            background: #1DA1F2;
+        }
+
+        .social-icon.facebook {
+            background: #4267B2;
+        }
+
+        .social-icon.link {
+            background: #34495e;
+        }
+
+        .social-icon.link.copied {
+            background: #27ae60;
             animation: successPulse 0.5s ease;
         }
 
         @keyframes successPulse {
             0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+            50% { transform: scale(1.15); }
         }
 
         footer {
             text-align: center;
             color: white;
             padding: 20px;
-            margin-top: 40px;
+            margin-top: 30px;
             opacity: 0.8;
             font-size: 0.9em;
         }
@@ -347,6 +374,12 @@
             .keyword-explanation {
                 margin-left: 0;
             }
+
+            .social-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 24px;
+            }
         }
     </style>
 </head>
@@ -356,19 +389,6 @@
             <h1>🌍 글로벌 실시간 인기 검색어</h1>
             <p class="subtitle">전 세계 11개국의 트렌딩 키워드를 실시간으로 확인하세요</p>
             <p class="last-updated" id="lastUpdated">데이터 로딩 중...</p>
-            
-            <!-- 공유 버튼 -->
-            <div class="share-buttons">
-                <button class="share-btn" onclick="shareTwitter()">
-                    🐦 트위터 공유
-                </button>
-                <button class="share-btn" onclick="shareFacebook()">
-                    📘 페이스북 공유
-                </button>
-                <button class="share-btn" id="copyLinkBtn" onclick="copyLink()">
-                    🔗 링크 복사
-                </button>
-            </div>
         </header>
 
         <!-- 국가 탭 -->
@@ -387,8 +407,24 @@
             <!-- 동적으로 국가별 카드가 여기에 추가됩니다 -->
         </div>
 
+        <!-- 소셜 공유 섹션 -->
+        <div class="social-share-section">
+            <div class="social-share-title">공유하기</div>
+            <div class="social-icons">
+                <a class="social-icon twitter" onclick="shareTwitter()" title="트위터에 공유">
+                    🐦
+                </a>
+                <a class="social-icon facebook" onclick="shareFacebook()" title="페이스북에 공유">
+                    📘
+                </a>
+                <a class="social-icon link" id="copyLinkIcon" onclick="copyLink()" title="링크 복사">
+                    🔗
+                </a>
+            </div>
+        </div>
+
         <footer>
-            <p>© 2024 글로벌 트렌드. 3시간마다 자동 업데이트 | 데이터 출처: Google Trends</p>
+            <p>© 2024 RealtimeKeyword. 3시간마다 자동 업데이트 | 데이터 출처: Google Trends</p>
         </footer>
     </div>
 
@@ -567,7 +603,7 @@
             return div.innerHTML;
         }
 
-        // 마지막 업데이트 시간
+        // 마지막 업데이트 시간 (24시간 형식)
         function updateLastUpdated(trends) {
             if (!trends || trends.length === 0) return;
 
@@ -577,7 +613,8 @@
                 month: 'long',
                 day: 'numeric',
                 hour: '2-digit',
-                minute: '2-digit'
+                minute: '2-digit',
+                hour12: false
             });
 
             document.getElementById('lastUpdated').textContent = 
@@ -645,14 +682,14 @@
         function copyLink() {
             const url = window.location.href;
             navigator.clipboard.writeText(url).then(() => {
-                const btn = document.getElementById('copyLinkBtn');
-                const originalText = btn.innerHTML;
-                btn.innerHTML = '✅ 복사됨!';
-                btn.classList.add('copied');
+                const icon = document.getElementById('copyLinkIcon');
+                const originalEmoji = icon.textContent;
+                icon.textContent = '✅';
+                icon.classList.add('copied');
                 
                 setTimeout(() => {
-                    btn.innerHTML = originalText;
-                    btn.classList.remove('copied');
+                    icon.textContent = originalEmoji;
+                    icon.classList.remove('copied');
                 }, 2000);
                 
                 // Google Analytics 이벤트 추적
