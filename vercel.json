@@ -2,7 +2,19 @@
   "rewrites": [
     {
       "source": "/api/trends",
-      "destination": "/api/trends/index.js"
+      "destination": "/api/trends.js"
+    },
+    {
+      "source": "/api/contact",
+      "destination": "/api/contact.js"
+    },
+    {
+      "source": "/privacy",
+      "destination": "/privacy.html"
+    },
+    {
+      "source": "/contact",
+      "destination": "/contact.html"
     },
     {
       "source": "/:country(us|ca|au|gb|sg|de|fr|no|se|jp|kr)",
