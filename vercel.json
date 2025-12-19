@@ -1,8 +1,139 @@
 {
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/api/trends",
+      "destination": "/api/trends/index.js"
+    },
+    {
+      "source": "/:country(us|ca|au|gb|sg|de|fr|no|se|jp|kr)",
       "destination": "/index.html"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "header",
+          "key": "x-vercel-ip-country",
+          "value": "KR"
+        }
+      ],
+      "destination": "/kr",
+      "permanent": false
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "header",
+          "key": "x-vercel-ip-country",
+          "value": "JP"
+        }
+      ],
+      "destination": "/jp",
+      "permanent": false
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "header",
+          "key": "x-vercel-ip-country",
+          "value": "DE"
+        }
+      ],
+      "destination": "/de",
+      "permanent": false
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "header",
+          "key": "x-vercel-ip-country",
+          "value": "FR"
+        }
+      ],
+      "destination": "/fr",
+      "permanent": false
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "header",
+          "key": "x-vercel-ip-country",
+          "value": "NO"
+        }
+      ],
+      "destination": "/no",
+      "permanent": false
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "header",
+          "key": "x-vercel-ip-country",
+          "value": "SE"
+        }
+      ],
+      "destination": "/se",
+      "permanent": false
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "header",
+          "key": "x-vercel-ip-country",
+          "value": "CA"
+        }
+      ],
+      "destination": "/ca",
+      "permanent": false
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "header",
+          "key": "x-vercel-ip-country",
+          "value": "AU"
+        }
+      ],
+      "destination": "/au",
+      "permanent": false
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "header",
+          "key": "x-vercel-ip-country",
+          "value": "GB"
+        }
+      ],
+      "destination": "/gb",
+      "permanent": false
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "header",
+          "key": "x-vercel-ip-country",
+          "value": "SG"
+        }
+      ],
+      "destination": "/sg",
+      "permanent": false
+    },
+    {
+      "source": "/",
+      "destination": "/us",
+      "permanent": false
     }
   ]
 }

@@ -43,6 +43,17 @@ COUNTRIES = {
     'SG': '싱가포르',    # $6-10 CPM
 }
 
+# 7개 언어 설정
+LANGUAGES = {
+    'en': 'English',
+    'ko': 'Korean',
+    'ja': 'Japanese',
+    'de': 'German',
+    'fr': 'French',
+    'no': 'Norwegian',
+    'sv': 'Swedish'
+}
+
 # 국가별 Google Trends URL
 TRENDS_URLS = {
     'US': 'https://trends.google.com/trending?geo=US',
@@ -61,7 +72,7 @@ TRENDS_URLS = {
 def setup_driver():
     """Chrome 드라이버 설정"""
     chrome_options = Options()
-    # chrome_options.add_argument('--headless')  # 일단 브라우저 창 보이도록 주석 처리
+    chrome_options.add_argument('--headless')
     chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument('--disable-dev-shm-usage')
     chrome_options.add_argument('--disable-gpu')
@@ -73,7 +84,6 @@ def setup_driver():
         service = Service(ChromeDriverManager().install())
     except Exception as e:
         print(f"  ⚠️ ChromeDriver 자동 설치 실패, 시스템 드라이버 사용: {e}")
-        # 시스템에 설치된 chromedriver 사용
         service = Service()
     
     driver = webdriver.Chrome(service=service, options=chrome_options)
@@ -137,7 +147,6 @@ def get_trending_keywords(country_code):
                 continue
         
         # 중복 제거 및 정리
-        # 1. UI 요소 필터링 (버튼, 메뉴 등)
         excluded_words = [
             'Trends', 'trending', '실시간 인기', '로그인', 'Login', 'Sign in',
             'location_on', 'menu', 'search', 'Google', '▾', '더보기', 'More',
@@ -149,7 +158,7 @@ def get_trending_keywords(country_code):
             if kw and len(kw) > 2 and kw not in excluded_words
         ]
         
-        # 2. 대소문자 구분 없이 중복 제거
+        # 대소문자 구분 없이 중복 제거
         seen = {}
         unique_keywords = []
         for kw in keywords:
@@ -175,9 +184,8 @@ def get_trending_keywords(country_code):
             driver.quit()
 
 def get_news_for_keyword(keyword, country_code):
-    """특정 키워드의 최신 뉴스 수집 (개선 버전)"""
+    """특정 키워드의 최신 뉴스 수집"""
     try:
-        # 언어별 설정 (검색 정확도 향상)
         language_map = {
             'US': 'en', 'CA': 'en', 'AU': 'en', 'GB': 'en',
             'DE': 'de', 'FR': 'fr', 'NO': 'no', 'SE': 'sv',
@@ -185,18 +193,17 @@ def get_news_for_keyword(keyword, country_code):
         }
         
         language = language_map.get(country_code, 'en')
-        google_news = GNews(language=language, country=country_code, max_results=5)  # 5개로 증가
+        google_news = GNews(language=language, country=country_code, max_results=5)
         news_items = google_news.get_news(keyword)
         
         if not news_items:
             return []
         
         news_summary = []
-        for item in news_items[:5]:  # 5개로 증가
+        for item in news_items[:5]:
             title = item.get('title', '')
             description = item.get('description', '')
             
-            # 의미 있는 뉴스만 선택
             if title and len(title) > 10:
                 news_summary.append({
                     'title': title,
@@ -211,22 +218,47 @@ def get_news_for_keyword(keyword, country_code):
         print(f"    ⚠ {keyword} 뉴스 수집 실패: {e}")
         return []
 
-def analyze_keyword_with_gpt(keyword, news_data, country_name):
-    """GPT-4로 키워드 분석 (프롬프트 개선 버전)"""
-    try:
-        if not news_data:
-            return f"{keyword}에 대한 최신 뉴스를 찾을 수 없어 분석이 어렵습니다."
-        
-        # 뉴스 내용만 추출 (메타 정보 제거)
-        news_contents = []
-        for news in news_data:
-            if news['title']:
-                content = f"{news['title']}. {news['description']}"
-                news_contents.append(content)
-        
-        news_text = "\n\n".join(news_contents)
-        
-        prompt = f"""당신은 글로벌 트렌드 분석 전문가입니다.
+def analyze_keyword_multilingual(keyword, news_data, country_name):
+    """GPT-4로 7개 언어로 키워드 분석 (신규 함수)"""
+    explanations = {}
+    
+    if not news_data:
+        # 뉴스가 없을 경우 기본 메시지
+        for lang_code in LANGUAGES.keys():
+            explanations[lang_code] = f"Trending: {keyword}"
+        return explanations
+    
+    # 뉴스 내용 추출
+    news_contents = []
+    for news in news_data:
+        if news['title']:
+            content = f"{news['title']}. {news['description']}"
+            news_contents.append(content)
+    
+    news_text = "\n\n".join(news_contents)
+    
+    # 각 언어별로 설명 생성
+    for lang_code, lang_name in LANGUAGES.items():
+        try:
+            print(f"    🌐 {lang_name} 설명 생성 중...")
+            
+            if lang_code == 'en':
+                prompt = f"""You are a trending keyword analyst. Based on the news articles provided, explain why "{keyword}" is trending in {country_name}.
+
+Related news:
+{news_text}
+
+Requirements:
+1. Write a concise 2-3 sentence explanation in English
+2. Focus ONLY on factual information from the news articles
+3. Do NOT speculate or make assumptions
+4. If no news context is provided, give a general but factual explanation
+5. Write naturally and clearly
+
+Provide ONLY the explanation text, no additional formatting."""
+
+            elif lang_code == 'ko':
+                prompt = f"""당신은 글로벌 트렌드 분석 전문가입니다.
 
 키워드: "{keyword}"
 국가: {country_name}
@@ -237,41 +269,105 @@ def analyze_keyword_with_gpt(keyword, news_data, country_name):
 위 뉴스 내용을 바탕으로, 이 키워드가 {country_name}에서 왜 인기 검색어가 되었는지 분석해주세요.
 
 작성 규칙:
-1. "뉴스 1, 2, 3" 또는 "[뉴스 1]" 같은 메타 언급 절대 금지
-2. 구체적인 사건, 인물, 날짜, 수치만 작성
-3. 추측이나 일반론 금지 - 오직 뉴스에 나온 사실만
-4. 3-4문장으로 간결하게
-5. 한국어로 작성
+1. 구체적인 사건, 인물, 날짜, 수치만 작성
+2. 추측이나 일반론 금지 - 오직 뉴스에 나온 사실만
+3. 3-4문장으로 간결하게
+4. 한국어로 작성
 
-좋은 예시:
-"테일러 스위프트는 12월 15일 뉴욕에서 새 앨범 발매 기념 콘서트를 개최했습니다. 이번 콘서트는 5만 명의 관중을 동원하며 매진을 기록했습니다. 새 앨범은 빌보드 차트 1위를 차지했습니다."
+설명만 작성하세요."""
 
-절대 하지 말아야 할 예시:
-"뉴스 1,2,3에 따르면 테일러 스위프트가 화제입니다."
-"여러 뉴스에서 보도되고 있으며 팬들의 관심이 높습니다."
-"""
+            elif lang_code == 'ja':
+                prompt = f"""あなたはトレンドキーワードアナリストです。ニュース記事に基づいて、なぜ「{keyword}」が{country_name}でトレンドになっているかを説明してください。
 
-        # 원래 작동하던 방식 그대로 사용
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=[
-                {"role": "system", "content": "당신은 뉴스 기사를 분석하여 팩트만을 추출하는 전문가입니다. 메타 정보나 추측 없이 오직 구체적인 사실만 전달합니다."},
-                {"role": "user", "content": prompt}
-            ],
-            max_tokens=300,
-            temperature=0.1
-        )
-        
-        explanation = response.choices[0].message.content.strip()
-        print(f"    ✅ GPT 분석 완료 ({len(explanation)}자)")
-        return explanation
-        
-    except Exception as e:
-        print(f"    ❌ GPT 분석 실패: {e}")
-        if news_data:
-            titles = " | ".join([n['title'][:50] for n in news_data[:2]])
-            return f"{keyword}: {titles}... 등의 이유로 트렌딩 중입니다."
-        return f"{keyword}는 {country_name}에서 현재 트렌딩 중인 인기 검색어입니다."
+関連ニュース:
+{news_text}
+
+要件:
+1. 2-3文で簡潔に日本語で説明
+2. ニュース記事の事実のみに焦点を当てる
+3. 推測や仮定は禁止
+4. 自然で明確に書く
+
+説明のみを記述してください。"""
+
+            elif lang_code == 'de':
+                prompt = f"""Sie sind ein Trendschlüsselwort-Analyst. Basierend auf den bereitgestellten Nachrichtenartikeln erklären Sie, warum "{keyword}" in {country_name} im Trend liegt.
+
+Verwandte Nachrichten:
+{news_text}
+
+Anforderungen:
+1. Schreiben Sie eine prägnante 2-3-Satz-Erklärung auf Deutsch
+2. Konzentrieren Sie sich NUR auf faktische Informationen aus den Nachrichtenartikeln
+3. Spekulieren oder vermuten Sie NICHT
+4. Schreiben Sie natürlich und klar
+
+Geben Sie NUR den Erklärungstext an."""
+
+            elif lang_code == 'fr':
+                prompt = f"""Vous êtes un analyste de mots-clés tendance. Sur la base des articles de presse fournis, expliquez pourquoi "{keyword}" est tendance en {country_name}.
+
+Actualités connexes:
+{news_text}
+
+Exigences:
+1. Rédigez une explication concise de 2-3 phrases en français
+2. Concentrez-vous UNIQUEMENT sur les informations factuelles des articles de presse
+3. NE spéculez PAS et ne faites PAS d'hypothèses
+4. Écrivez naturellement et clairement
+
+Fournissez UNIQUEMENT le texte d'explication."""
+
+            elif lang_code == 'no':
+                prompt = f"""Du er en trendnøkkelordanalytiker. Basert på de gitte nyhetsartiklene, forklar hvorfor "{keyword}" er trending i {country_name}.
+
+Relaterte nyheter:
+{news_text}
+
+Krav:
+1. Skriv en kortfattet 2-3 setningsforklaring på norsk
+2. Fokuser KUN på faktainformasjon fra nyhetsartiklene
+3. IKKE spekuler eller gjør antagelser
+4. Skriv naturlig og tydelig
+
+Oppgi KUN forklaringsteksten."""
+
+            elif lang_code == 'sv':
+                prompt = f"""Du är en trendnyckelordsanalytiker. Baserat på de tillhandahållna nyhetsartiklarna, förklara varför "{keyword}" trendar i {country_name}.
+
+Relaterade nyheter:
+{news_text}
+
+Krav:
+1. Skriv en kortfattad 2-3 meningsförklaring på svenska
+2. Fokusera ENDAST på faktainformation från nyhetsartiklarna
+3. Spekulera INTE eller gör antaganden
+4. Skriv naturligt och tydligt
+
+Ange ENDAST förklaringstexten."""
+
+            response = openai.ChatCompletion.create(
+                model="gpt-4",
+                messages=[
+                    {"role": "system", "content": f"You are a professional news analyst. Always respond in {lang_name}."},
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=250,
+                temperature=0.1
+            )
+            
+            explanation = response.choices[0].message.content.strip()
+            explanations[lang_code] = explanation
+            print(f"    ✅ {lang_name} 설명 생성 완료")
+            
+            # API Rate Limit 방지
+            time.sleep(1)
+            
+        except Exception as e:
+            print(f"    ❌ {lang_name} 설명 생성 실패: {e}")
+            explanations[lang_code] = f"Trending: {keyword}"
+    
+    return explanations
 
 def save_to_mongodb(country_code, country_name, keywords_data):
     """MongoDB에 저장"""
@@ -292,7 +388,7 @@ def save_to_mongodb(country_code, country_name, keywords_data):
         print(f"❌ MongoDB 저장 실패: {e}\n")
 
 def collect_trends_for_country(country_code, country_name):
-    """국가별 트렌드 수집 및 분석"""
+    """국가별 트렌드 수집 및 분석 (다국어 지원)"""
     print(f"\n{'='*50}")
     print(f"🌍 {country_name} ({country_code}) 수집 시작...")
     print(f"{'='*50}")
@@ -311,13 +407,13 @@ def collect_trends_for_country(country_code, country_name):
         news_data = get_news_for_keyword(keyword, country_code)
         time.sleep(1)
         
-        explanation = analyze_keyword_with_gpt(keyword, news_data, country_name)
-        time.sleep(1)
+        # 7개 언어로 설명 생성
+        explanations = analyze_keyword_multilingual(keyword, news_data, country_name)
         
         keywords_data.append({
             'rank': rank,
             'keyword': keyword,
-            'explanation': explanation,
+            'explanations': explanations,  # 다국어 설명 객체
             'news_count': len(news_data)
         })
     
@@ -341,13 +437,13 @@ def collect_all_trends():
 def main():
     """메인 실행 함수"""
     print("="*70)
-    print("🔥 실시간 트렌드 수집 시스템 시작 (Selenium v2)")
+    print("🔥 실시간 트렌드 수집 시스템 시작 (다국어 지원)")
     print("="*70)
     print(f"📅 수집 간격: 3시간마다")
     print(f"🌏 대상 국가: {', '.join(COUNTRIES.values())}")
     print(f"📊 키워드 수: 국가당 10개")
+    print(f"🌐 지원 언어: 7개 (en, ko, ja, de, fr, no, sv)")
     print(f"📡 데이터 출처: Google Trends (Selenium)")
-    print(f"🐛 디버그: HTML/PNG 파일 자동 저장")
     print("="*70)
     
     # 즉시 1회 실행

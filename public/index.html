@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="전 세계 실시간 인기 검색어를 한눈에 확인하세요. 미국, 캐나다, 호주, 영국 등 11개국의 트렌딩 키워드와 분석을 제공합니다.">
-    <meta name="keywords" content="실시간 검색어, 트렌드, 인기 검색어, Google Trends, 글로벌 트렌드">
-    <meta property="og:title" content="글로벌 실시간 인기 검색어 - 11개국 트렌드 분석">
-    <meta property="og:description" content="전 세계 실시간 인기 검색어를 한눈에 확인하세요.">
+    <meta name="description" content="Check real-time trending keywords from around the world.">
+    <meta name="keywords" content="trending keywords, trends, Google Trends, real-time search">
+    <meta property="og:title" content="Real-time Trending Keywords">
+    <meta property="og:description" content="Check real-time trending keywords from around the world.">
     <meta property="og:type" content="website">
-    <title>글로벌 실시간 인기 검색어 - 11개국 트렌드 분석</title>
+    <title>Real-time Trending Keywords</title>
     
     <!-- 파비콘 -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌍</text></svg>">
@@ -75,7 +75,6 @@
             display: inline-block;
         }
 
-        /* 국가 탭 네비게이션 */
         .country-tabs {
             display: flex;
             flex-wrap: wrap;
@@ -119,7 +118,6 @@
             font-size: 1.3em;
         }
 
-        /* 트렌드 카드 */
         .trend-card {
             background: white;
             border-radius: 16px;
@@ -220,17 +218,6 @@
             margin-left: 48px;
         }
 
-        .news-count {
-            display: inline-block;
-            background: linear-gradient(135deg, #74b9ff 0%, #a29bfe 100%);
-            color: white;
-            padding: 5px 12px;
-            border-radius: 14px;
-            font-size: 0.8em;
-            font-weight: 600;
-            margin-left: 10px;
-        }
-
         .loading {
             text-align: center;
             color: white;
@@ -272,7 +259,6 @@
             transform: scale(1.05);
         }
 
-        /* 소셜 공유 섹션 (하단) */
         .social-share-section {
             text-align: center;
             padding: 30px 20px;
@@ -330,12 +316,6 @@
 
         .social-icon.link.copied {
             background: #27ae60;
-            animation: successPulse 0.5s ease;
-        }
-
-        @keyframes successPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.15); }
         }
 
         footer {
@@ -362,18 +342,6 @@
                 font-size: 0.9em;
             }
 
-            .card-country {
-                font-size: 1.5em;
-            }
-
-            .card-flag {
-                font-size: 2.5em;
-            }
-
-            .keyword-title {
-                font-size: 1.1em;
-            }
-
             .keyword-explanation {
                 margin-left: 0;
             }
@@ -389,65 +357,50 @@
 <body>
     <div class="container">
         <header>
-            <h1 id="mainTitle">🌍 글로벌 실시간 인기 검색어</h1>
-            <p class="subtitle" id="subtitle">전 세계 11개국의 트렌딩 키워드를 실시간으로 확인하세요</p>
-            <p class="last-updated" id="lastUpdated">데이터 로딩 중...</p>
+            <h1 id="mainTitle">🌍 Real-time Trending Keywords</h1>
+            <p class="subtitle" id="subtitle">Check trending keywords from around the world in real-time</p>
+            <p class="last-updated" id="lastUpdated">Loading data...</p>
         </header>
 
-        <!-- 국가 탭 -->
-        <div class="country-tabs" id="countryTabs" style="display: none;">
-            <!-- 동적으로 탭 생성 -->
-        </div>
+        <div class="country-tabs" id="countryTabs" style="display: none;"></div>
 
         <div id="loading" class="loading">
-            <span id="loadingText">🔄 데이터를 불러오는 중...</span>
+            <span id="loadingText">🔄 Loading data...</span>
         </div>
 
         <div id="error" style="display: none;"></div>
 
-        <!-- 트렌드 카드 컨테이너 -->
-        <div id="trendsContainer">
-            <!-- 동적으로 국가별 카드가 여기에 추가됩니다 -->
-        </div>
+        <div id="trendsContainer"></div>
 
-        <!-- 소셜 공유 섹션 -->
         <div class="social-share-section">
-            <div class="social-share-title" id="shareTitle">공유하기</div>
+            <div class="social-share-title" id="shareTitle">Share</div>
             <div class="social-icons">
-                <a class="social-icon twitter" onclick="shareTwitter()" title="트위터에 공유">
-                    🐦
-                </a>
-                <a class="social-icon facebook" onclick="shareFacebook()" title="페이스북에 공유">
-                    📘
-                </a>
-                <a class="social-icon link" id="copyLinkIcon" onclick="copyLink()" title="링크 복사">
-                    🔗
-                </a>
+                <a class="social-icon twitter" onclick="shareTwitter()">🐦</a>
+                <a class="social-icon facebook" onclick="shareFacebook()">📘</a>
+                <a class="social-icon link" id="copyLinkIcon" onclick="copyLink()">🔗</a>
             </div>
         </div>
 
         <footer>
-            <p id="footerText">© 2024 RealtimeKeyword. 3시간마다 자동 업데이트 | 데이터 출처: Google Trends</p>
+            <p id="footerText">© 2024 RealtimeKeyword. Updates every 3 hours | Data source: Google Trends</p>
         </footer>
     </div>
 
     <script>
-        // 국가 정보 (코드, 국기, 시간대)
         const COUNTRIES = {
             'US': { flag: '🇺🇸', timezone: 'America/New_York' },
             'CA': { flag: '🇨🇦', timezone: 'America/Toronto' },
             'AU': { flag: '🇦🇺', timezone: 'Australia/Sydney' },
             'GB': { flag: '🇬🇧', timezone: 'Europe/London' },
+            'SG': { flag: '🇸🇬', timezone: 'Asia/Singapore' },
             'DE': { flag: '🇩🇪', timezone: 'Europe/Berlin' },
             'FR': { flag: '🇫🇷', timezone: 'Europe/Paris' },
             'NO': { flag: '🇳🇴', timezone: 'Europe/Oslo' },
             'SE': { flag: '🇸🇪', timezone: 'Europe/Stockholm' },
             'JP': { flag: '🇯🇵', timezone: 'Asia/Tokyo' },
-            'KR': { flag: '🇰🇷', timezone: 'Asia/Seoul' },
-            'SG': { flag: '🇸🇬', timezone: 'Asia/Singapore' }
+            'KR': { flag: '🇰🇷', timezone: 'Asia/Seoul' }
         };
 
-        // 언어별 번역
         const TRANSLATIONS = {
             'en': {
                 lang: 'en',
@@ -458,22 +411,10 @@
                 shareTitle: 'Share',
                 footer: '© 2024 RealtimeKeyword. Updates every 3 hours | Data source: Google Trends',
                 retry: 'Retry',
-                errorPrefix: '❌ ',
-                metaTitle: 'Real-time Trending Keywords',
-                metaDescription: 'Check real-time trending keywords from around the world.',
-                metaKeywords: 'trending keywords, trends, Google Trends, real-time search',
                 countryNames: {
-                    'US': 'United States',
-                    'CA': 'Canada',
-                    'AU': 'Australia',
-                    'GB': 'United Kingdom',
-                    'DE': 'Germany',
-                    'FR': 'France',
-                    'NO': 'Norway',
-                    'SE': 'Sweden',
-                    'JP': 'Japan',
-                    'KR': 'South Korea',
-                    'SG': 'Singapore'
+                    'US': 'United States', 'CA': 'Canada', 'AU': 'Australia', 'GB': 'United Kingdom',
+                    'SG': 'Singapore', 'DE': 'Germany', 'FR': 'France', 'NO': 'Norway',
+                    'SE': 'Sweden', 'JP': 'Japan', 'KR': 'South Korea'
                 }
             },
             'ko': {
@@ -485,22 +426,10 @@
                 shareTitle: '공유하기',
                 footer: '© 2024 RealtimeKeyword. 3시간마다 자동 업데이트 | 데이터 출처: Google Trends',
                 retry: '다시 시도',
-                errorPrefix: '❌ ',
-                metaTitle: '실시간 인기 검색어',
-                metaDescription: '전 세계의 실시간 인기 검색어를 확인하세요.',
-                metaKeywords: '실시간 검색어, 트렌드, 인기 검색어, Google Trends, 글로벌 트렌드',
                 countryNames: {
-                    'US': '미국',
-                    'CA': '캐나다',
-                    'AU': '호주',
-                    'GB': '영국',
-                    'DE': '독일',
-                    'FR': '프랑스',
-                    'NO': '노르웨이',
-                    'SE': '스웨덴',
-                    'JP': '일본',
-                    'KR': '한국',
-                    'SG': '싱가포르'
+                    'US': '미국', 'CA': '캐나다', 'AU': '호주', 'GB': '영국',
+                    'SG': '싱가포르', 'DE': '독일', 'FR': '프랑스', 'NO': '노르웨이',
+                    'SE': '스웨덴', 'JP': '일본', 'KR': '한국'
                 }
             },
             'ja': {
@@ -512,22 +441,10 @@
                 shareTitle: '共有',
                 footer: '© 2024 RealtimeKeyword. 3時間ごとに更新 | データソース: Google Trends',
                 retry: '再試行',
-                errorPrefix: '❌ ',
-                metaTitle: 'リアルタイムトレンドキーワード',
-                metaDescription: '世界中のリアルタイムトレンドキーワードをチェック。',
-                metaKeywords: 'トレンドキーワード, トレンド, Google Trends, リアルタイム検索',
                 countryNames: {
-                    'US': 'アメリカ',
-                    'CA': 'カナダ',
-                    'AU': 'オーストラリア',
-                    'GB': 'イギリス',
-                    'DE': 'ドイツ',
-                    'FR': 'フランス',
-                    'NO': 'ノルウェー',
-                    'SE': 'スウェーデン',
-                    'JP': '日本',
-                    'KR': '韓国',
-                    'SG': 'シンガポール'
+                    'US': 'アメリカ', 'CA': 'カナダ', 'AU': 'オーストラリア', 'GB': 'イギリス',
+                    'SG': 'シンガポール', 'DE': 'ドイツ', 'FR': 'フランス', 'NO': 'ノルウェー',
+                    'SE': 'スウェーデン', 'JP': '日本', 'KR': '韓国'
                 }
             },
             'de': {
@@ -539,22 +456,10 @@
                 shareTitle: 'Teilen',
                 footer: '© 2024 RealtimeKeyword. Aktualisiert alle 3 Stunden | Datenquelle: Google Trends',
                 retry: 'Erneut versuchen',
-                errorPrefix: '❌ ',
-                metaTitle: 'Echtzeit-Trendschlüsselwörter',
-                metaDescription: 'Überprüfen Sie Echtzeit-Trendschlüsselwörter aus der ganzen Welt.',
-                metaKeywords: 'Trendschlüsselwörter, Trends, Google Trends, Echtzeitsuche',
                 countryNames: {
-                    'US': 'Vereinigte Staaten',
-                    'CA': 'Kanada',
-                    'AU': 'Australien',
-                    'GB': 'Vereinigtes Königreich',
-                    'DE': 'Deutschland',
-                    'FR': 'Frankreich',
-                    'NO': 'Norwegen',
-                    'SE': 'Schweden',
-                    'JP': 'Japan',
-                    'KR': 'Südkorea',
-                    'SG': 'Singapur'
+                    'US': 'Vereinigte Staaten', 'CA': 'Kanada', 'AU': 'Australien', 'GB': 'Vereinigtes Königreich',
+                    'SG': 'Singapur', 'DE': 'Deutschland', 'FR': 'Frankreich', 'NO': 'Norwegen',
+                    'SE': 'Schweden', 'JP': 'Japan', 'KR': 'Südkorea'
                 }
             },
             'fr': {
@@ -564,24 +469,12 @@
                 lastUpdated: 'Dernière mise à jour: ',
                 loading: '🔄 Chargement des données...',
                 shareTitle: 'Partager',
-                footer: '© 2024 RealtimeKeyword. Mise à jour toutes les 3 heures | Source de données: Google Trends',
+                footer: '© 2024 RealtimeKeyword. Mise à jour toutes les 3 heures | Source: Google Trends',
                 retry: 'Réessayer',
-                errorPrefix: '❌ ',
-                metaTitle: 'Mots-clés tendance en temps réel',
-                metaDescription: 'Vérifiez les mots-clés tendance en temps réel du monde entier.',
-                metaKeywords: 'mots-clés tendance, tendances, Google Trends, recherche en temps réel',
                 countryNames: {
-                    'US': 'États-Unis',
-                    'CA': 'Canada',
-                    'AU': 'Australie',
-                    'GB': 'Royaume-Uni',
-                    'DE': 'Allemagne',
-                    'FR': 'France',
-                    'NO': 'Norvège',
-                    'SE': 'Suède',
-                    'JP': 'Japon',
-                    'KR': 'Corée du Sud',
-                    'SG': 'Singapour'
+                    'US': 'États-Unis', 'CA': 'Canada', 'AU': 'Australie', 'GB': 'Royaume-Uni',
+                    'SG': 'Singapour', 'DE': 'Allemagne', 'FR': 'France', 'NO': 'Norvège',
+                    'SE': 'Suède', 'JP': 'Japon', 'KR': 'Corée du Sud'
                 }
             },
             'no': {
@@ -593,22 +486,10 @@
                 shareTitle: 'Del',
                 footer: '© 2024 RealtimeKeyword. Oppdateres hver 3. time | Datakilde: Google Trends',
                 retry: 'Prøv igjen',
-                errorPrefix: '❌ ',
-                metaTitle: 'Sanntids trendsøkeord',
-                metaDescription: 'Sjekk sanntids trendsøkeord fra hele verden.',
-                metaKeywords: 'trendsøkeord, trender, Google Trends, sanntidssøk',
                 countryNames: {
-                    'US': 'USA',
-                    'CA': 'Canada',
-                    'AU': 'Australia',
-                    'GB': 'Storbritannia',
-                    'DE': 'Tyskland',
-                    'FR': 'Frankrike',
-                    'NO': 'Norge',
-                    'SE': 'Sverige',
-                    'JP': 'Japan',
-                    'KR': 'Sør-Korea',
-                    'SG': 'Singapore'
+                    'US': 'USA', 'CA': 'Canada', 'AU': 'Australia', 'GB': 'Storbritannia',
+                    'SG': 'Singapore', 'DE': 'Tyskland', 'FR': 'Frankrike', 'NO': 'Norge',
+                    'SE': 'Sverige', 'JP': 'Japan', 'KR': 'Sør-Korea'
                 }
             },
             'sv': {
@@ -620,39 +501,17 @@
                 shareTitle: 'Dela',
                 footer: '© 2024 RealtimeKeyword. Uppdateras var 3:e timme | Datakälla: Google Trends',
                 retry: 'Försök igen',
-                errorPrefix: '❌ ',
-                metaTitle: 'Realtidstrendande sökord',
-                metaDescription: 'Kolla realtidstrendande sökord från hela världen.',
-                metaKeywords: 'trendande sökord, trender, Google Trends, realtidssökning',
                 countryNames: {
-                    'US': 'USA',
-                    'CA': 'Kanada',
-                    'AU': 'Australien',
-                    'GB': 'Storbritannien',
-                    'DE': 'Tyskland',
-                    'FR': 'Frankrike',
-                    'NO': 'Norge',
-                    'SE': 'Sverige',
-                    'JP': 'Japan',
-                    'KR': 'Sydkorea',
-                    'SG': 'Singapore'
+                    'US': 'USA', 'CA': 'Kanada', 'AU': 'Australien', 'GB': 'Storbritannien',
+                    'SG': 'Singapore', 'DE': 'Tyskland', 'FR': 'Frankrike', 'NO': 'Norge',
+                    'SE': 'Sverige', 'JP': 'Japan', 'KR': 'Sydkorea'
                 }
             }
         };
 
-        // 국가 코드별 언어 매핑
         const COUNTRY_TO_LANGUAGE = {
-            'US': 'en',
-            'CA': 'en',
-            'AU': 'en',
-            'GB': 'en',
-            'DE': 'de',
-            'FR': 'fr',
-            'NO': 'no',
-            'SE': 'sv',
-            'JP': 'ja',
-            'KR': 'ko',
-            'SG': 'en'
+            'US': 'en', 'CA': 'en', 'AU': 'en', 'GB': 'en', 'SG': 'en',
+            'DE': 'de', 'FR': 'fr', 'NO': 'no', 'SE': 'sv', 'JP': 'ja', 'KR': 'ko'
         };
 
         let trendsData = {};
@@ -660,46 +519,44 @@
         let currentLanguage = 'en';
         let currentTranslations = TRANSLATIONS['en'];
 
-        // URL에서 국가 코드 추출
         function getCountryFromURL() {
             const path = window.location.pathname;
             const match = path.match(/\/([a-z]{2})$/i);
-            if (match) {
-                return match[1].toUpperCase();
-            }
-            return null;
+            return match ? match[1].toUpperCase() : null;
         }
 
-        // URL 변경 (브라우저 히스토리)
         function changeURL(countryCode) {
-            const url = `/${countryCode.toLowerCase()}`;
-            window.history.pushState({ country: countryCode }, '', url);
+            window.history.pushState({ country: countryCode }, '', `/${countryCode.toLowerCase()}`);
         }
 
-        // 언어 설정 적용 (URL 국가 코드 기반)
+        function detectUserCountry() {
+            // Vercel의 geo-location 헤더 사용 시도
+            const geoCountry = document.cookie.match(/vercel-geo-country=([^;]+)/);
+            if (geoCountry) {
+                const country = geoCountry[1].toUpperCase();
+                if (COUNTRIES[country]) return country;
+            }
+            
+            // 기본값: 미국
+            return 'US';
+        }
+
         function applyLanguage(countryCode) {
             currentLanguage = COUNTRY_TO_LANGUAGE[countryCode] || 'en';
             currentTranslations = TRANSLATIONS[currentLanguage];
 
-            // HTML lang 속성 변경
             document.documentElement.lang = currentLanguage;
-
-            // 페이지 콘텐츠 변경
             document.getElementById('mainTitle').textContent = currentTranslations.mainTitle;
             document.getElementById('subtitle').textContent = currentTranslations.subtitle;
             document.getElementById('loadingText').textContent = currentTranslations.loading;
             document.getElementById('shareTitle').textContent = currentTranslations.shareTitle;
             document.getElementById('footerText').textContent = currentTranslations.footer;
 
-            // 메타 태그 업데이트
-            document.title = currentTranslations.metaTitle;
-            updateMetaTag('name', 'description', currentTranslations.metaDescription);
-            updateMetaTag('name', 'keywords', currentTranslations.metaKeywords);
-            updateMetaTag('property', 'og:title', currentTranslations.metaTitle);
-            updateMetaTag('property', 'og:description', currentTranslations.metaDescription);
+            document.title = currentTranslations.mainTitle;
+            updateMetaTag('name', 'description', currentTranslations.subtitle);
+            updateMetaTag('property', 'og:title', currentTranslations.mainTitle);
         }
 
-        // 메타 태그 업데이트 헬퍼 함수
         function updateMetaTag(attr, value, content) {
             let meta = document.querySelector(`meta[${attr}="${value}"]`);
             if (meta) {
@@ -712,7 +569,6 @@
             }
         }
 
-        // 트렌드 데이터 로드
         async function loadTrends() {
             const loadingEl = document.getElementById('loading');
             const errorEl = document.getElementById('error');
@@ -725,12 +581,8 @@
             containerEl.innerHTML = '';
 
             try {
-                console.log('Fetching trends data...');
                 const response = await fetch('/api/trends');
-                console.log('Response status:', response.status);
-                
                 const result = await response.json();
-                console.log('API result:', result);
 
                 if (!result.success) {
                     throw new Error(result.error || 'Failed to load data.');
@@ -740,45 +592,42 @@
                     throw new Error('No data collected yet. Please try again later.');
                 }
 
-                // 데이터 저장
                 trendsData = {};
                 result.data.forEach(trend => {
-                    console.log('Processing trend for:', trend.country_code);
                     trendsData[trend.country_code] = trend;
                 });
-                console.log('Trends data loaded:', Object.keys(trendsData));
 
                 loadingEl.style.display = 'none';
                 tabsEl.style.display = 'flex';
 
-                // URL에서 국가 선택
-                const urlCountry = getCountryFromURL();
-                console.log('URL country:', urlCountry);
-                const initialCountry = (urlCountry && trendsData[urlCountry]) ? urlCountry : 'US';
-                console.log('Initial country:', initialCountry);
-                
-                // 언어 설정 적용 (이 국가의 언어로 전체 페이지 표시)
-                applyLanguage(initialCountry);
+                // URL 체크 후 없으면 사용자 국가로 리디렉션
+                let urlCountry = getCountryFromURL();
+                if (!urlCountry) {
+                    const detectedCountry = detectUserCountry();
+                    window.location.href = `/${detectedCountry.toLowerCase()}`;
+                    return;
+                }
 
+                const initialCountry = trendsData[urlCountry] ? urlCountry : 'US';
+                
+                applyLanguage(initialCountry);
                 createTabs();
                 createCards();
                 updateLastUpdated(result.data);
                 selectCountry(initialCountry);
 
             } catch (error) {
-                console.error('Error loading trends:', error);
                 loadingEl.style.display = 'none';
                 errorEl.style.display = 'block';
                 errorEl.className = 'error';
                 errorEl.innerHTML = `
-                    ${currentTranslations.errorPrefix}${error.message}
+                    ❌ ${error.message}
                     <br><br>
                     <button class="reload-button" onclick="loadTrends()">${currentTranslations.retry}</button>
                 `;
             }
         }
 
-        // 국가 탭 생성 (현재 언어로)
         function createTabs() {
             const tabsEl = document.getElementById('countryTabs');
             tabsEl.innerHTML = '';
@@ -798,7 +647,6 @@
             });
         }
 
-        // 트렌드 카드 생성 (현재 언어로)
         function createCards() {
             const containerEl = document.getElementById('trendsContainer');
             containerEl.innerHTML = '';
@@ -815,15 +663,21 @@
                         <span class="card-flag">${COUNTRIES[code].flag}</span>
                     </div>
                     <ul class="keywords-list">
-                        ${trend.keywords.map(kw => `
-                            <li class="keyword-item">
-                                <div class="keyword-header">
-                                    <span class="keyword-rank">${kw.rank}</span>
-                                    <div class="keyword-title">${escapeHtml(kw.keyword)}</div>
-                                </div>
-                                <div class="keyword-explanation">${escapeHtml(kw.explanation)}</div>
-                            </li>
-                        `).join('')}
+                        ${trend.keywords.map(kw => {
+                            const explanation = kw.explanations && kw.explanations[currentLanguage] 
+                                ? kw.explanations[currentLanguage] 
+                                : `Trending: ${kw.keyword}`;
+                            
+                            return `
+                                <li class="keyword-item">
+                                    <div class="keyword-header">
+                                        <span class="keyword-rank">${kw.rank}</span>
+                                        <div class="keyword-title">${escapeHtml(kw.keyword)}</div>
+                                    </div>
+                                    <div class="keyword-explanation">${escapeHtml(explanation)}</div>
+                                </li>
+                            `;
+                        }).join('')}
                     </ul>
                 `;
 
@@ -831,66 +685,44 @@
             });
         }
 
-        // 국가 선택 (언어는 변경하지 않음)
         function selectCountry(countryCode) {
             currentCountry = countryCode;
-
-            // URL 변경
             changeURL(countryCode);
 
-            // 탭 활성화
             document.querySelectorAll('.country-tab').forEach(tab => {
-                if (tab.dataset.country === countryCode) {
-                    tab.classList.add('active');
-                } else {
-                    tab.classList.remove('active');
-                }
+                tab.classList.toggle('active', tab.dataset.country === countryCode);
             });
 
-            // 카드 표시
             document.querySelectorAll('.trend-card').forEach(card => {
-                if (card.dataset.country === countryCode) {
-                    card.classList.add('active');
-                } else {
-                    card.classList.remove('active');
-                }
+                card.classList.toggle('active', card.dataset.country === countryCode);
             });
 
-            // 시간 업데이트 (선택한 국가의 시간대로)
             if (trendsData[countryCode]) {
                 updateLastUpdatedForCountry(countryCode);
             }
         }
 
-        // HTML 이스케이프
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
         }
 
-        // 마지막 업데이트 시간 (전체 데이터 기준)
         function updateLastUpdated(trends) {
             if (!trends || trends.length === 0) return;
             const lastUpdated = new Date(trends[0].updated_at);
             updateLastUpdatedForCountry(currentCountry, lastUpdated);
         }
 
-        // 선택한 국가의 시간대로 업데이트 시간 표시
         function updateLastUpdatedForCountry(countryCode, date) {
             if (!date && trendsData[countryCode]) {
                 date = new Date(trendsData[countryCode].updated_at);
             }
             if (!date) return;
 
-            // 안전하게 timezone 가져오기
             const countryInfo = COUNTRIES[countryCode];
-            if (!countryInfo || !countryInfo.timezone) {
-                console.error('Timezone not found for country:', countryCode);
-                return;
-            }
+            if (!countryInfo || !countryInfo.timezone) return;
 
-            const timezone = countryInfo.timezone;
             const locale = currentLanguage === 'ko' ? 'ko-KR' : 
                           currentLanguage === 'ja' ? 'ja-JP' : 
                           currentLanguage === 'de' ? 'de-DE' : 
@@ -905,90 +737,50 @@
                 hour: '2-digit',
                 minute: '2-digit',
                 hour12: false,
-                timeZone: timezone
+                timeZone: countryInfo.timezone
             });
 
             document.getElementById('lastUpdated').textContent = 
                 currentTranslations.lastUpdated + formatted;
         }
 
-        // 브라우저 뒤로가기/앞으로가기 처리
-        window.addEventListener('popstate', (event) => {
+        window.addEventListener('popstate', () => {
             const urlCountry = getCountryFromURL();
             if (urlCountry && trendsData[urlCountry]) {
-                // 언어 재적용 후 국가 선택
                 applyLanguage(urlCountry);
                 createTabs();
                 createCards();
                 selectCountry(urlCountry);
-            } else {
-                applyLanguage('US');
-                createTabs();
-                createCards();
-                selectCountry('US');
             }
         });
 
-        // 페이지 로드 시 자동 실행
         window.addEventListener('DOMContentLoaded', loadTrends);
 
-        // 5분마다 자동 새로고침
-        setInterval(() => {
-            loadTrends();
-        }, 5 * 60 * 1000);
+        setInterval(loadTrends, 5 * 60 * 1000);
 
-        // 공유 기능
         function shareTwitter() {
             const url = window.location.href;
-            const text = `${currentTranslations.mainTitle}`;
-            const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
-            window.open(twitterUrl, '_blank', 'width=550,height=420');
-            
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'share', {
-                    method: 'Twitter',
-                    content_type: 'trends',
-                    item_id: currentCountry
-                });
-            }
+            const text = currentTranslations.mainTitle;
+            window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank', 'width=550,height=420');
+            if (typeof gtag !== 'undefined') gtag('event', 'share', { method: 'Twitter' });
         }
 
         function shareFacebook() {
             const url = window.location.href;
-            const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
-            window.open(facebookUrl, '_blank', 'width=550,height=420');
-            
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'share', {
-                    method: 'Facebook',
-                    content_type: 'trends',
-                    item_id: currentCountry
-                });
-            }
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank', 'width=550,height=420');
+            if (typeof gtag !== 'undefined') gtag('event', 'share', { method: 'Facebook' });
         }
 
         function copyLink() {
-            const url = window.location.href;
-            navigator.clipboard.writeText(url).then(() => {
+            navigator.clipboard.writeText(window.location.href).then(() => {
                 const icon = document.getElementById('copyLinkIcon');
-                const originalEmoji = icon.textContent;
                 icon.textContent = '✅';
                 icon.classList.add('copied');
-                
                 setTimeout(() => {
-                    icon.textContent = originalEmoji;
+                    icon.textContent = '🔗';
                     icon.classList.remove('copied');
                 }, 2000);
-                
-                if (typeof gtag !== 'undefined') {
-                    gtag('event', 'share', {
-                        method: 'Copy Link',
-                        content_type: 'trends',
-                        item_id: currentCountry
-                    });
-                }
-            }).catch(err => {
-                alert('Failed to copy link.');
+                if (typeof gtag !== 'undefined') gtag('event', 'share', { method: 'Copy Link' });
             });
         }
     </script>
