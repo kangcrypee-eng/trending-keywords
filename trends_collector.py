@@ -347,7 +347,7 @@ Krav:
 Ange ENDAST förklaringstexten."""
 
             response = openai.ChatCompletion.create(
-                model="gpt-4",
+                model="gpt-3.5-turbo",
                 messages=[
                     {"role": "system", "content": f"You are a professional news analyst. Always respond in {lang_name}."},
                     {"role": "user", "content": prompt}
