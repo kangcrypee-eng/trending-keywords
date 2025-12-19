@@ -1,7 +1,7 @@
 import time
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -10,7 +10,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from gnews import GNews
-import openai
+from openai import OpenAI  # ← 변경: 새로운 import 방식
 from pymongo import MongoClient
 
 
@@ -20,8 +20,8 @@ client = MongoClient(MONGODB_URI)
 db = client['trending_keywords']
 collection = db['keywords']
 
-# OpenAI API 설정
-openai.api_key = os.environ.get('OPENAI_API_KEY', 'YOUR_API_KEY_HERE')
+# OpenAI API 설정 (새로운 방식)
+openai_client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY', 'YOUR_API_KEY_HERE'))
 
 # 수집할 국가 설정 (AdSense 고단가 우선)
 COUNTRIES = {
@@ -219,7 +219,7 @@ def get_news_for_keyword(keyword, country_code):
         return []
 
 def analyze_keyword_multilingual(keyword, news_data, country_name):
-    """GPT-4로 7개 언어로 키워드 분석 (신규 함수)"""
+    """GPT-4로 7개 언어로 키워드 분석 (OpenAI 1.0+ 호환)"""
     explanations = {}
     
     if not news_data:
@@ -346,7 +346,8 @@ Krav:
 
 Ange ENDAST förklaringstexten."""
 
-            response = openai.ChatCompletion.create(
+            # ← OpenAI 1.0+ 새로운 API 호출 방식
+            response = openai_client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
                     {"role": "system", "content": f"You are a professional news analyst. Always respond in {lang_name}."},
@@ -372,8 +373,6 @@ Ange ENDAST förklaringstexten."""
 def save_to_mongodb(country_code, country_name, keywords_data):
     """MongoDB에 저장"""
     try:
-        from datetime import timezone
-        
         document = {
             'country_code': country_code,
             'country_name': country_name,
