@@ -437,7 +437,7 @@ def collect_all_trends():
     print("="*70)
 
 def main():
-    """메인 실행 함수"""
+    """메인 실행 함수 - GitHub Actions용"""
     print("="*70)
     print("🔥 실시간 트렌드 수집 시스템 시작 (다국어 지원)")
     print("="*70)
@@ -447,7 +447,7 @@ def main():
     print(f"📡 데이터 출처: Google Trends (Selenium)")
     print("="*70)
     
-    # GitHub Actions용: 1회만 실행
+    # GitHub Actions용: 1회만 실행하고 종료
     collect_all_trends()
     
     print("\n✅ 수집 완료!")
@@ -459,4 +459,4 @@ if __name__ == "__main__":
         print("\n\n👋 프로그램 종료")
     except Exception as e:
         print(f"\n❌ 오류 발생: {e}")
-        raise  # 에러를 GitHub Actions에 전달
+        raise  # GitHub Actions에 에러 전달
