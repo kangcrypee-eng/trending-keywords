@@ -181,33 +181,40 @@
             box-shadow: 0 6px 12px rgba(0,0,0,0.1);
         }
 
+        .keyword-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
         .keyword-rank {
-            display: inline-block;
-            width: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 36px;
             height: 36px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border-radius: 50%;
-            text-align: center;
-            line-height: 36px;
             font-weight: 700;
-            margin-right: 14px;
             font-size: 1em;
+            flex-shrink: 0;
         }
 
         .keyword-title {
             font-size: 1.25em;
             font-weight: 600;
             color: #2d3436;
-            margin-bottom: 10px;
+            margin: 0;
+            flex: 1;
         }
 
         .keyword-explanation {
             font-size: 0.95em;
             color: #636e72;
             line-height: 1.7;
-            margin-left: 50px;
-            margin-top: 10px;
+            margin-left: 48px;
         }
 
         .news-count {
@@ -335,6 +342,10 @@
 
             .keyword-title {
                 font-size: 1.1em;
+            }
+
+            .keyword-explanation {
+                margin-left: 0;
             }
         }
     </style>
@@ -509,9 +520,9 @@
                     <ul class="keywords-list">
                         ${trend.keywords.map(kw => `
                             <li class="keyword-item">
-                                <span class="keyword-rank">${kw.rank}</span>
-                                <div class="keyword-title">
-                                    ${escapeHtml(kw.keyword)}
+                                <div class="keyword-header">
+                                    <span class="keyword-rank">${kw.rank}</span>
+                                    <div class="keyword-title">${escapeHtml(kw.keyword)}</div>
                                 </div>
                                 <div class="keyword-explanation">${escapeHtml(kw.explanation)}</div>
                             </li>
