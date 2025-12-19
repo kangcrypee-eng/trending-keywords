@@ -22,6 +22,10 @@
         gtag('config', 'G-DZ3Q1GP35K');
     </script>
     
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9611015224564728"
+         crossorigin="anonymous"></script>
+    
     <style>
         * {
             margin: 0;
@@ -36,9 +40,34 @@
             padding: 20px;
         }
 
-        .container {
-            max-width: 900px;
+        .page-wrapper {
+            display: flex;
+            max-width: 1400px;
             margin: 0 auto;
+            gap: 20px;
+        }
+
+        /* 좌우 사이드바 광고 */
+        .sidebar-ad {
+            width: 160px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-ad.left {
+            position: sticky;
+            top: 20px;
+            align-self: flex-start;
+        }
+
+        .sidebar-ad.right {
+            position: sticky;
+            top: 20px;
+            align-self: flex-start;
+        }
+
+        .container {
+            flex: 1;
+            max-width: 900px;
         }
 
         header {
@@ -73,6 +102,23 @@
             padding: 6px 14px;
             border-radius: 20px;
             display: inline-block;
+        }
+
+        /* 광고 컨테이너 */
+        .ad-container {
+            background: rgba(255,255,255,0.95);
+            border-radius: 8px;
+            padding: 10px;
+            margin: 20px 0;
+            text-align: center;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ad-container.horizontal {
+            min-height: 90px;
         }
 
         .country-tabs {
@@ -327,6 +373,26 @@
             font-size: 0.9em;
         }
 
+        footer a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 1200px) {
+            .sidebar-ad {
+                display: none;
+            }
+
+            .page-wrapper {
+                justify-content: center;
+            }
+        }
+
         @media (max-width: 768px) {
             h1 {
                 font-size: 1.8em;
@@ -355,39 +421,112 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1 id="mainTitle">🌍 Real-time Trending Keywords</h1>
-            <p class="subtitle" id="subtitle">Check trending keywords from around the world in real-time</p>
-            <p class="last-updated" id="lastUpdated">Loading data...</p>
-        </header>
-
-        <div class="country-tabs" id="countryTabs" style="display: none;"></div>
-
-        <div id="loading" class="loading">
-            <span id="loadingText">🔄 Loading data...</span>
-        </div>
-
-        <div id="error" style="display: none;"></div>
-
-        <div id="trendsContainer"></div>
-
-        <div class="social-share-section">
-            <div class="social-share-title" id="shareTitle">Share</div>
-            <div class="social-icons">
-                <a class="social-icon twitter" onclick="shareTwitter()">🐦</a>
-                <a class="social-icon facebook" onclick="shareFacebook()">📘</a>
-                <a class="social-icon link" id="copyLinkIcon" onclick="copyLink()">🔗</a>
+    <div class="page-wrapper">
+        <!-- 좌측 사이드바 광고 -->
+        <div class="sidebar-ad left">
+            <div class="ad-container">
+                <!-- 좌측 세로 광고 (160x600) -->
+                <ins class="adsbygoogle"
+                     style="display:inline-block;width:160px;height:600px"
+                     data-ad-client="ca-pub-9611015224564728"
+                     data-ad-slot="1234567890"></ins>
+                <script>
+                     (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
             </div>
         </div>
 
-       <footer>
-    <p id="footerText">© 2025 RealtimeKeyword. Updates every 3 hours | Data source: Google Trends</p>
-    <p style="margin-top: 10px;">
-        <a href="/privacy" style="color: white; text-decoration: none; margin: 0 10px;">Privacy Policy</a> | 
-        <a href="/contact" style="color: white; text-decoration: none; margin: 0 10px;">Contact Us</a>
-    </p>
-</footer>
+        <!-- 메인 콘텐츠 -->
+        <div class="container">
+            <header>
+                <h1 id="mainTitle">🌍 Real-time Trending Keywords</h1>
+                <p class="subtitle" id="subtitle">Check trending keywords from around the world in real-time</p>
+                <p class="last-updated" id="lastUpdated">Loading data...</p>
+            </header>
+
+            <!-- 국가 탭 위 광고 -->
+            <div class="ad-container horizontal">
+                <!-- 가로 배너 광고 (728x90 또는 responsive) -->
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-9611015224564728"
+                     data-ad-slot="2345678901"
+                     data-ad-format="horizontal"></ins>
+                <script>
+                     (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+            </div>
+
+            <!-- 국가 탭 -->
+            <div class="country-tabs" id="countryTabs" style="display: none;"></div>
+
+            <!-- 국가 탭 아래 광고 -->
+            <div class="ad-container horizontal">
+                <!-- 가로 배너 광고 (728x90 또는 responsive) -->
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-9611015224564728"
+                     data-ad-slot="3456789012"
+                     data-ad-format="horizontal"></ins>
+                <script>
+                     (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+            </div>
+
+            <div id="loading" class="loading">
+                <span id="loadingText">🔄 Loading data...</span>
+            </div>
+
+            <div id="error" style="display: none;"></div>
+
+            <!-- 트렌드 카드 컨테이너 -->
+            <div id="trendsContainer"></div>
+
+            <!-- 푸터 위 광고 -->
+            <div class="ad-container horizontal">
+                <!-- 가로 배너 광고 (728x90 또는 responsive) -->
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-9611015224564728"
+                     data-ad-slot="5678901234"
+                     data-ad-format="horizontal"></ins>
+                <script>
+                     (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+            </div>
+
+            <!-- 소셜 공유 섹션 -->
+            <div class="social-share-section">
+                <div class="social-share-title" id="shareTitle">Share</div>
+                <div class="social-icons">
+                    <a class="social-icon twitter" onclick="shareTwitter()">🐦</a>
+                    <a class="social-icon facebook" onclick="shareFacebook()">📘</a>
+                    <a class="social-icon link" id="copyLinkIcon" onclick="copyLink()">🔗</a>
+                </div>
+            </div>
+
+            <footer>
+                <p id="footerText">© 2024 RealtimeKeyword. Updates every 3 hours | Data source: Google Trends</p>
+                <p style="margin-top: 10px;">
+                    <a href="/privacy">Privacy Policy</a> | 
+                    <a href="/contact">Contact Us</a>
+                </p>
+            </footer>
+        </div>
+
+        <!-- 우측 사이드바 광고 -->
+        <div class="sidebar-ad right">
+            <div class="ad-container">
+                <!-- 우측 세로 광고 (160x600) -->
+                <ins class="adsbygoogle"
+                     style="display:inline-block;width:160px;height:600px"
+                     data-ad-client="ca-pub-9611015224564728"
+                     data-ad-slot="6789012345"></ins>
+                <script>
+                     (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -534,14 +673,11 @@
         }
 
         function detectUserCountry() {
-            // Vercel의 geo-location 헤더 사용 시도
             const geoCountry = document.cookie.match(/vercel-geo-country=([^;]+)/);
             if (geoCountry) {
                 const country = geoCountry[1].toUpperCase();
                 if (COUNTRIES[country]) return country;
             }
-            
-            // 기본값: 미국
             return 'US';
         }
 
@@ -604,7 +740,6 @@
                 loadingEl.style.display = 'none';
                 tabsEl.style.display = 'flex';
 
-                // URL 체크 후 없으면 사용자 국가로 리디렉션
                 let urlCountry = getCountryFromURL();
                 if (!urlCountry) {
                     const detectedCountry = detectUserCountry();
@@ -661,31 +796,59 @@
                 card.className = 'trend-card';
                 card.dataset.country = code;
 
+                let keywordsHTML = '';
+                trend.keywords.forEach((kw, index) => {
+                    const explanation = kw.explanations && kw.explanations[currentLanguage] 
+                        ? kw.explanations[currentLanguage] 
+                        : `Trending: ${kw.keyword}`;
+                    
+                    keywordsHTML += `
+                        <li class="keyword-item">
+                            <div class="keyword-header">
+                                <span class="keyword-rank">${kw.rank}</span>
+                                <div class="keyword-title">${escapeHtml(kw.keyword)}</div>
+                            </div>
+                            <div class="keyword-explanation">${escapeHtml(explanation)}</div>
+                        </li>
+                    `;
+
+                    // 5번째 키워드 뒤에 광고 삽입
+                    if (index === 4) {
+                        keywordsHTML += `
+                            <div class="ad-container" style="margin: 20px 0;">
+                                <ins class="adsbygoogle"
+                                     style="display:block"
+                                     data-ad-client="ca-pub-9611015224564728"
+                                     data-ad-slot="4567890123"
+                                     data-ad-format="fluid"></ins>
+                            </div>
+                        `;
+                    }
+                });
+
                 card.innerHTML = `
                     <div class="card-header">
                         <span class="card-country">${currentTranslations.countryNames[code]}</span>
                         <span class="card-flag">${COUNTRIES[code].flag}</span>
                     </div>
                     <ul class="keywords-list">
-                        ${trend.keywords.map(kw => {
-                            const explanation = kw.explanations && kw.explanations[currentLanguage] 
-                                ? kw.explanations[currentLanguage] 
-                                : `Trending: ${kw.keyword}`;
-                            
-                            return `
-                                <li class="keyword-item">
-                                    <div class="keyword-header">
-                                        <span class="keyword-rank">${kw.rank}</span>
-                                        <div class="keyword-title">${escapeHtml(kw.keyword)}</div>
-                                    </div>
-                                    <div class="keyword-explanation">${escapeHtml(explanation)}</div>
-                                </li>
-                            `;
-                        }).join('')}
+                        ${keywordsHTML}
                     </ul>
                 `;
 
                 containerEl.appendChild(card);
+
+                // 인피드 광고 초기화
+                if (window.adsbygoogle) {
+                    const ads = card.querySelectorAll('.adsbygoogle');
+                    ads.forEach(ad => {
+                        try {
+                            (adsbygoogle = window.adsbygoogle || []).push({});
+                        } catch (e) {
+                            console.error('AdSense error:', e);
+                        }
+                    });
+                }
             });
         }
 
