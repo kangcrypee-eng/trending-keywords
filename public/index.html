@@ -725,8 +725,12 @@
             containerEl.innerHTML = '';
 
             try {
+                console.log('Fetching trends data...');
                 const response = await fetch('/api/trends');
+                console.log('Response status:', response.status);
+                
                 const result = await response.json();
+                console.log('API result:', result);
 
                 if (!result.success) {
                     throw new Error(result.error || 'Failed to load data.');
@@ -739,15 +743,19 @@
                 // 데이터 저장
                 trendsData = {};
                 result.data.forEach(trend => {
+                    console.log('Processing trend for:', trend.country_code);
                     trendsData[trend.country_code] = trend;
                 });
+                console.log('Trends data loaded:', Object.keys(trendsData));
 
                 loadingEl.style.display = 'none';
                 tabsEl.style.display = 'flex';
 
                 // URL에서 국가 선택
                 const urlCountry = getCountryFromURL();
+                console.log('URL country:', urlCountry);
                 const initialCountry = (urlCountry && trendsData[urlCountry]) ? urlCountry : 'US';
+                console.log('Initial country:', initialCountry);
                 
                 // 언어 설정 적용 (이 국가의 언어로 전체 페이지 표시)
                 applyLanguage(initialCountry);
@@ -758,6 +766,7 @@
                 selectCountry(initialCountry);
 
             } catch (error) {
+                console.error('Error loading trends:', error);
                 loadingEl.style.display = 'none';
                 errorEl.style.display = 'block';
                 errorEl.className = 'error';
@@ -874,7 +883,14 @@
             }
             if (!date) return;
 
-            const timezone = COUNTRIES[countryCode].timezone;
+            // 안전하게 timezone 가져오기
+            const countryInfo = COUNTRIES[countryCode];
+            if (!countryInfo || !countryInfo.timezone) {
+                console.error('Timezone not found for country:', countryCode);
+                return;
+            }
+
+            const timezone = countryInfo.timezone;
             const locale = currentLanguage === 'ko' ? 'ko-KR' : 
                           currentLanguage === 'ja' ? 'ja-JP' : 
                           currentLanguage === 'de' ? 'de-DE' : 
