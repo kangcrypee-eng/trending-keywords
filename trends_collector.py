@@ -10,7 +10,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from gnews import GNews
-from openai import OpenAI  # ← 변경: 새로운 import 방식
+from openai import OpenAI
 from pymongo import MongoClient
 
 
@@ -20,7 +20,7 @@ client = MongoClient(MONGODB_URI)
 db = client['trending_keywords']
 collection = db['keywords']
 
-# OpenAI API 설정 (새로운 방식)
+# OpenAI API 설정
 openai_client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY', 'YOUR_API_KEY_HERE'))
 
 # 수집할 국가 설정 (AdSense 고단가 우선)
@@ -219,14 +219,17 @@ def get_news_for_keyword(keyword, country_code):
         return []
 
 def analyze_keyword_multilingual(keyword, news_data, country_name):
-    """GPT-4로 7개 언어로 키워드 분석 (OpenAI 1.0+ 호환)"""
+    """GPT로 7개 언어 동시 생성 (1회 API 호출로 최적화)"""
     explanations = {}
     
-    if not news_data:
-        # 뉴스가 없을 경우 기본 메시지
+    # 뉴스 데이터 검증
+    if not news_data or len(news_data) == 0:
+        print(f"    ⚠️ 뉴스 데이터 없음, 기본 메시지 사용")
         for lang_code in LANGUAGES.keys():
             explanations[lang_code] = f"Trending: {keyword}"
         return explanations
+    
+    print(f"    📊 뉴스 {len(news_data)}개로 7개 언어 동시 분석")
     
     # 뉴스 내용 추출
     news_contents = []
@@ -237,136 +240,106 @@ def analyze_keyword_multilingual(keyword, news_data, country_name):
     
     news_text = "\n\n".join(news_contents)
     
-    # 각 언어별로 설명 생성
-    for lang_code, lang_name in LANGUAGES.items():
-        try:
-            print(f"    🌐 {lang_name} 설명 생성 중...")
-            
-            if lang_code == 'en':
-                prompt = f"""You are a trending keyword analyst. Based on the news articles provided, explain why "{keyword}" is trending in {country_name}.
+    # 🚀 1번의 API 호출로 7개 언어 모두 생성
+    try:
+        print(f"    🌐 7개 언어 동시 생성 중...")
+        
+        prompt = f"""You are a professional news analyst. Generate explanations for why "{keyword}" is trending in {country_name} in ALL 7 languages simultaneously.
 
 Related news:
 {news_text}
 
-Requirements:
-1. Write a concise 2-3 sentence explanation in English
-2. Focus ONLY on factual information from the news articles
-3. Do NOT speculate or make assumptions
-4. If no news context is provided, give a general but factual explanation
-5. Write naturally and clearly
+Generate EXACTLY in this format (no extra text):
 
-Provide ONLY the explanation text, no additional formatting."""
+ENGLISH:
+[2-3 sentence explanation in English based on the news]
 
-            elif lang_code == 'ko':
-                prompt = f"""당신은 글로벌 트렌드 분석 전문가입니다.
+KOREAN:
+[3-4문장 한국어 설명 - 뉴스 사실만 포함]
 
-키워드: "{keyword}"
-국가: {country_name}
+JAPANESE:
+[2-3文の日本語説明]
 
-관련 뉴스:
-{news_text}
+GERMAN:
+[2-3 Sätze auf Deutsch]
 
-위 뉴스 내용을 바탕으로, 이 키워드가 {country_name}에서 왜 인기 검색어가 되었는지 분석해주세요.
+FRENCH:
+[2-3 phrases en français]
 
-작성 규칙:
-1. 구체적인 사건, 인물, 날짜, 수치만 작성
-2. 추측이나 일반론 금지 - 오직 뉴스에 나온 사실만
-3. 3-4문장으로 간결하게
-4. 한국어로 작성
+NORWEGIAN:
+[2-3 setninger på norsk]
 
-설명만 작성하세요."""
+SWEDISH:
+[2-3 meningar på svenska]
 
-            elif lang_code == 'ja':
-                prompt = f"""あなたはトレンドキーワードアナリストです。ニュース記事に基づいて、なぜ「{keyword}」が{country_name}でトレンドになっているかを説明してください。
+Rules:
+- Focus ONLY on facts from the news
+- No speculation or assumptions
+- Concise and clear
+- Each language section must start with the language name in ALL CAPS followed by colon"""
 
-関連ニュース:
-{news_text}
-
-要件:
-1. 2-3文で簡潔に日本語で説明
-2. ニュース記事の事実のみに焦点を当てる
-3. 推測や仮定は禁止
-4. 自然で明確に書く
-
-説明のみを記述してください。"""
-
-            elif lang_code == 'de':
-                prompt = f"""Sie sind ein Trendschlüsselwort-Analyst. Basierend auf den bereitgestellten Nachrichtenartikeln erklären Sie, warum "{keyword}" in {country_name} im Trend liegt.
-
-Verwandte Nachrichten:
-{news_text}
-
-Anforderungen:
-1. Schreiben Sie eine prägnante 2-3-Satz-Erklärung auf Deutsch
-2. Konzentrieren Sie sich NUR auf faktische Informationen aus den Nachrichtenartikeln
-3. Spekulieren oder vermuten Sie NICHT
-4. Schreiben Sie natürlich und klar
-
-Geben Sie NUR den Erklärungstext an."""
-
-            elif lang_code == 'fr':
-                prompt = f"""Vous êtes un analyste de mots-clés tendance. Sur la base des articles de presse fournis, expliquez pourquoi "{keyword}" est tendance en {country_name}.
-
-Actualités connexes:
-{news_text}
-
-Exigences:
-1. Rédigez une explication concise de 2-3 phrases en français
-2. Concentrez-vous UNIQUEMENT sur les informations factuelles des articles de presse
-3. NE spéculez PAS et ne faites PAS d'hypothèses
-4. Écrivez naturellement et clairement
-
-Fournissez UNIQUEMENT le texte d'explication."""
-
-            elif lang_code == 'no':
-                prompt = f"""Du er en trendnøkkelordanalytiker. Basert på de gitte nyhetsartiklene, forklar hvorfor "{keyword}" er trending i {country_name}.
-
-Relaterte nyheter:
-{news_text}
-
-Krav:
-1. Skriv en kortfattet 2-3 setningsforklaring på norsk
-2. Fokuser KUN på faktainformasjon fra nyhetsartiklene
-3. IKKE spekuler eller gjør antagelser
-4. Skriv naturlig og tydelig
-
-Oppgi KUN forklaringsteksten."""
-
-            elif lang_code == 'sv':
-                prompt = f"""Du är en trendnyckelordsanalytiker. Baserat på de tillhandahållna nyhetsartiklarna, förklara varför "{keyword}" trendar i {country_name}.
-
-Relaterade nyheter:
-{news_text}
-
-Krav:
-1. Skriv en kortfattad 2-3 meningsförklaring på svenska
-2. Fokusera ENDAST på faktainformation från nyhetsartiklarna
-3. Spekulera INTE eller gör antaganden
-4. Skriv naturligt och tydligt
-
-Ange ENDAST förklaringstexten."""
-
-            # ← OpenAI 1.0+ 새로운 API 호출 방식
-            response = openai_client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "system", "content": f"You are a professional news analyst. Always respond in {lang_name}."},
-                    {"role": "user", "content": prompt}
-                ],
-                max_tokens=250,
-                temperature=0.1
-            )
+        response = openai_client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a multilingual news analyst. Generate explanations in all requested languages."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=800,
+            temperature=0.1
+        )
+        
+        if response and response.choices and len(response.choices) > 0:
+            full_text = response.choices[0].message.content.strip()
             
-            explanation = response.choices[0].message.content.strip()
-            explanations[lang_code] = explanation
-            print(f"    ✅ {lang_name} 설명 생성 완료")
+            # 언어별로 파싱
+            language_markers = {
+                'en': 'ENGLISH:',
+                'ko': 'KOREAN:',
+                'ja': 'JAPANESE:',
+                'de': 'GERMAN:',
+                'fr': 'FRENCH:',
+                'no': 'NORWEGIAN:',
+                'sv': 'SWEDISH:'
+            }
             
-            # API Rate Limit 방지
-            time.sleep(1)
+            for lang_code, marker in language_markers.items():
+                try:
+                    start_idx = full_text.find(marker)
+                    if start_idx == -1:
+                        explanations[lang_code] = f"Trending: {keyword}"
+                        continue
+                    
+                    # 다음 언어 마커 찾기
+                    next_markers = [m for m in language_markers.values() if m != marker]
+                    end_idx = len(full_text)
+                    for next_marker in next_markers:
+                        next_idx = full_text.find(next_marker, start_idx + len(marker))
+                        if next_idx != -1 and next_idx < end_idx:
+                            end_idx = next_idx
+                    
+                    # 추출 및 정리
+                    explanation = full_text[start_idx + len(marker):end_idx].strip()
+                    if explanation and len(explanation) > 10:
+                        explanations[lang_code] = explanation
+                    else:
+                        explanations[lang_code] = f"Trending: {keyword}"
+                except:
+                    explanations[lang_code] = f"Trending: {keyword}"
             
-        except Exception as e:
-            print(f"    ❌ {lang_name} 설명 생성 실패: {e}")
+            print(f"    ✅ 7개 언어 동시 생성 완료 (1회 API 호출)")
+        else:
+            print(f"    ⚠️ API 응답 오류")
+            for lang_code in LANGUAGES.keys():
+                explanations[lang_code] = f"Trending: {keyword}"
+                
+    except Exception as e:
+        print(f"    ❌ API 호출 실패: {type(e).__name__}: {str(e)}")
+        for lang_code in LANGUAGES.keys():
             explanations[lang_code] = f"Trending: {keyword}"
+        
+        # 상세 에러 로깅
+        import traceback
+        print(f"    🐛 상세 에러: {traceback.format_exc()}")
     
     return explanations
 
@@ -377,7 +350,7 @@ def save_to_mongodb(country_code, country_name, keywords_data):
             'country_code': country_code,
             'country_name': country_name,
             'keywords': keywords_data,
-            'updated_at': datetime.now(timezone.utc),  # UTC 시간으로 저장
+            'updated_at': datetime.now(timezone.utc),
             'timestamp': datetime.now(timezone.utc).isoformat()
         }
         
@@ -414,7 +387,7 @@ def collect_trends_for_country(country_code, country_name):
         keywords_data.append({
             'rank': rank,
             'keyword': keyword,
-            'explanations': explanations,  # 다국어 설명 객체
+            'explanations': explanations,
             'news_count': len(news_data)
         })
     
