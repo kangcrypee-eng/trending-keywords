@@ -244,7 +244,7 @@ def analyze_keyword_multilingual(keyword, news_data, country_name):
     try:
         print(f"    🌐 7개 언어 동시 생성 중...")
         
-        prompt = f"""You are a professional news analyst. Generate explanations for why "{keyword}" is trending in {country_name} in ALL 7 languages simultaneously.
+        prompt = f"""You are a professional news analyst. Generate detailed, informative explanations for why "{keyword}" is trending in {country_name} in ALL 7 languages simultaneously.
 
 Related news:
 {news_text}
@@ -252,30 +252,32 @@ Related news:
 Generate EXACTLY in this format (no extra text):
 
 ENGLISH:
-[2-3 sentence explanation in English based on the news]
+[4-5 sentence explanation in English. Include: 1) What happened, 2) When/where it occurred, 3) Key people/organizations involved, 4) Why it matters, 5) Current status or impact]
 
 KOREAN:
-[3-4문장 한국어 설명 - 뉴스 사실만 포함]
+[5-6문장 한국어 설명. 포함사항: 1) 무슨 일인지, 2) 언제/어디서, 3) 주요 인물/조직, 4) 왜 중요한지, 5) 현재 상황]
 
 JAPANESE:
-[2-3文の日本語説明]
+[4-5文の日本語説明。含めるべき内容：1) 何が起こったか、2) いつ/どこで、3) 主要人物/組織、4) なぜ重要か、5) 現状]
 
 GERMAN:
-[2-3 Sätze auf Deutsch]
+[4-5 Sätze auf Deutsch. Enthalten: 1) Was geschah, 2) Wann/wo, 3) Wichtige Personen/Organisationen, 4) Warum wichtig, 5) Aktueller Status]
 
 FRENCH:
-[2-3 phrases en français]
+[4-5 phrases en français. Inclure: 1) Ce qui s'est passé, 2) Quand/où, 3) Personnes/organisations clés, 4) Pourquoi c'est important, 5) Statut actuel]
 
 NORWEGIAN:
-[2-3 setninger på norsk]
+[4-5 setninger på norsk. Inkluder: 1) Hva som skjedde, 2) Når/hvor, 3) Nøkkelpersoner/organisasjoner, 4) Hvorfor det betyr noe, 5) Nåværende status]
 
 SWEDISH:
-[2-3 meningar på svenska]
+[4-5 meningar på svenska. Inkludera: 1) Vad som hände, 2) När/var, 3) Nyckelaktörer/organisationer, 4) Varför det är viktigt, 5) Nuvarande status]
 
 Rules:
-- Focus ONLY on facts from the news
-- No speculation or assumptions
-- Concise and clear
+- Focus ONLY on verified facts from the news
+- Include specific details: dates, numbers, names, locations
+- Provide context and background
+- Explain significance and impact
+- Write in a professional, journalistic style
 - Each language section must start with the language name in ALL CAPS followed by colon"""
 
         response = openai_client.chat.completions.create(
@@ -284,7 +286,7 @@ Rules:
                 {"role": "system", "content": "You are a multilingual news analyst. Generate explanations in all requested languages."},
                 {"role": "user", "content": prompt}
             ],
-            max_tokens=800,
+            max_tokens=1500,  # 더 긴 설명을 위해 증가
             temperature=0.1
         )
         
@@ -327,15 +329,30 @@ Rules:
                     explanations[lang_code] = f"Trending: {keyword}"
             
             print(f"    ✅ 7개 언어 동시 생성 완료 (1회 API 호출)")
+            
+            # Rate Limit 방지: 각 키워드마다 2초 대기
+            time.sleep(2)
         else:
             print(f"    ⚠️ API 응답 오류")
             for lang_code in LANGUAGES.keys():
                 explanations[lang_code] = f"Trending: {keyword}"
                 
     except Exception as e:
-        print(f"    ❌ API 호출 실패: {type(e).__name__}: {str(e)}")
+        error_msg = str(e)
+        print(f"    ❌ API 호출 실패: {type(e).__name__}: {error_msg}")
+        
+        # 429 에러면 더 자세한 정보 출력
+        if '429' in error_msg or 'quota' in error_msg.lower():
+            print(f"    💳 OpenAI 할당량 초과 - 크레딧 충전 필요")
+            print(f"    🔗 https://platform.openai.com/account/billing")
+        
         for lang_code in LANGUAGES.keys():
             explanations[lang_code] = f"Trending: {keyword}"
+        
+        # Rate Limit이면 5초 대기 후 계속
+        if '429' in error_msg:
+            print(f"    ⏳ Rate Limit - 5초 대기...")
+            time.sleep(5)
         
         # 상세 에러 로깅
         import traceback
@@ -390,6 +407,9 @@ def collect_trends_for_country(country_code, country_name):
             'explanations': explanations,
             'news_count': len(news_data)
         })
+        
+        # 🚀 Rate Limit 방지: API 호출 후 3초 대기
+        time.sleep(3)
     
     save_to_mongodb(country_code, country_name, keywords_data)
 
